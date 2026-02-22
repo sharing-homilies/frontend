@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Email Verification - Sharing Homilies</title>
   <link rel="icon" href="./images/sharing-homilies.png">
-  <link href="./style.css" rel="stylesheet">
+  <link href="/style.css" rel="stylesheet">
 </head>
 <body class="font-inter antialiased bg-amber-50 text-gray-800 dark:bg-gray-950 dark:text-gray-100 tracking-tight" style="background-image: radial-gradient(circle at 18% 20%, rgba(245, 232, 204, 0.9), transparent 62%), radial-gradient(circle at 82% 14%, rgba(250, 236, 210, 0.85), transparent 58%), radial-gradient(circle at 35% 78%, rgba(238, 222, 191, 0.75), transparent 64%), radial-gradient(circle at 70% 70%, rgba(232, 214, 182, 0.7), transparent 60%), linear-gradient(0deg, rgba(252, 244, 228, 0.85), rgba(252, 244, 228, 0.85)); background-size: 100% 100%;">
   <div class="overflow-hidden supports-[overflow:clip]:overflow-clip">
@@ -53,6 +53,11 @@
   </div>
 
   <script>
+    const rawApiBase = (document.documentElement.dataset.apiBase || '').trim();
+    const apiBase = rawApiBase && !rawApiBase.includes('%VITE_')
+      ? rawApiBase
+      : 'http://localhost:5000';
+
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
     const email = urlParams.get('email');
@@ -76,7 +81,7 @@
     };
 
     if (token && email) {
-      fetch(`/web/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`)
+      fetch(`${apiBase}/web/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`)
         .then((response) => response.json())
         .then((data) => {
           if (data.verified) {
@@ -94,4 +99,5 @@
   </script>
 </body>
 </html>
+
 

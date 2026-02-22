@@ -6,8 +6,8 @@
   "author": "Pasquale Vitiello",
   "license": "https://cruip.com/terms/",
   "scripts": {
-    "dev": "concurrently -k \"npx @tailwindcss/cli -i ./css/style.css -o ./style.css --watch\" \"vite\"",
-    "build": "npx @tailwindcss/cli -i ./css/style.css -o ./style.css && vite build",
+    "dev": "concurrently -k \"npx @tailwindcss/cli -i ./css/style.css -o ./public/style.css --watch\" \"vite\"",
+    "build": "npx @tailwindcss/cli -i ./css/style.css -o ./public/style.css && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
