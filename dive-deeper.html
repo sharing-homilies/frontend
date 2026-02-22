@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-api-base="http://localhost:5000">
+<html lang="en" data-api-base="%VITE_API_BASE%">
 
     <head>
         <meta charset="utf-8">
@@ -572,14 +572,14 @@
             </div>
         </div>
 
-        <script src="./js/vendors/alpinejs.min.js" defer></script>
-        <script src="./js/main.js"></script>
+        <script type="module" src="./js/main.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
         <script src="https://unpkg.com/lucide@latest"></script>
         <script>
+            const rawApiBase = (document.documentElement.dataset.apiBase || '').trim();
             const apiBaseLocal = typeof apiBase !== 'undefined'
                 ? apiBase
-                : (document.documentElement.dataset.apiBase || 'http://localhost:5000');
+                : (rawApiBase && !rawApiBase.includes('%VITE_') ? rawApiBase : 'http://localhost:5000');
 
             const refreshLucide = () => {
                 if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -1564,3 +1564,4 @@
     </body>
 
 </html>
+

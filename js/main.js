@@ -1,3 +1,8 @@
+import Alpine from 'alpinejs';
+
+window.Alpine = Alpine;
+Alpine.start();
+
 // Light switcher
 const lightSwitches = document.querySelectorAll('.light-switch');
 if (lightSwitches.length > 0) {
@@ -25,7 +30,10 @@ if (lightSwitches.length > 0) {
   });
 }
 
-const apiBase = document.documentElement.dataset.apiBase || 'http://localhost:5000';
+const rawApiBase = (document.documentElement.dataset.apiBase || '').trim();
+const apiBase = rawApiBase && !rawApiBase.includes('%VITE_')
+  ? rawApiBase
+  : 'http://localhost:5000';
 const grid = document.getElementById('homily-grid');
 const statusEl = document.getElementById('homily-status');
 const emptyEl = document.getElementById('homily-empty');

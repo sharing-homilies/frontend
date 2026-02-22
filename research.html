@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-api-base="http://localhost:5000">
+<html lang="en" data-api-base="%VITE_API_BASE%">
 
     <head>
         <meta charset="utf-8">
@@ -197,8 +197,7 @@
             </div>
         </div>
 
-        <script src="./js/vendors/alpinejs.min.js" defer></script>
-        <script src="./js/main.js"></script>
+        <script type="module" src="./js/main.js"></script>
         <script>
             const researchSubscribeBtn = document.querySelector('.scroll-to-subscribe');
             if (researchSubscribeBtn) {
@@ -215,3 +214,4 @@
     </body>
 
 </html>
+
