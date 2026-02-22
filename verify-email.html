@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" data-api-base="http://localhost:5000">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Verification - Sharing Homilies</title>
+  <link rel="icon" href="./images/sharing-homilies.png">
+  <link href="./style.css" rel="stylesheet">
+</head>
+<body class="font-inter antialiased bg-amber-50 text-gray-800 dark:bg-gray-950 dark:text-gray-100 tracking-tight" style="background-image: radial-gradient(circle at 18% 20%, rgba(245, 232, 204, 0.9), transparent 62%), radial-gradient(circle at 82% 14%, rgba(250, 236, 210, 0.85), transparent 58%), radial-gradient(circle at 35% 78%, rgba(238, 222, 191, 0.75), transparent 64%), radial-gradient(circle at 70% 70%, rgba(232, 214, 182, 0.7), transparent 60%), linear-gradient(0deg, rgba(252, 244, 228, 0.85), rgba(252, 244, 228, 0.85)); background-size: 100% 100%;">
+  <div class="overflow-hidden supports-[overflow:clip]:overflow-clip">
+    <div class="max-w-[728px] mx-auto">
+      <div class="w-full bg-white dark:bg-gray-900 border-x border-amber-100 dark:border-gray-800 box-content" style="background-image: radial-gradient(circle at 10% 12%, rgba(255, 255, 255, 0.9), transparent 45%), radial-gradient(circle at 85% 18%, rgba(248, 248, 248, 0.9), transparent 48%), radial-gradient(circle at 20% 80%, rgba(250, 250, 250, 0.85), transparent 50%), radial-gradient(circle at 60% 35%, rgba(244, 244, 244, 0.6), transparent 55%), radial-gradient(circle at 40% 60%, rgba(245, 245, 245, 0.55), transparent 58%), linear-gradient(165deg, rgba(236, 236, 236, 0.25), rgba(255, 255, 255, 0) 40%), linear-gradient(6deg, rgba(232, 232, 232, 0.22), rgba(255, 255, 255, 0) 35%), linear-gradient(275deg, rgba(240, 240, 240, 0.18), rgba(255, 255, 255, 0) 45%); background-size: 100% 100%; background-blend-mode: multiply;">
+        <div class="px-6 md:px-16">
+          <div class="flex flex-col min-h-screen">
+            <header class="text-center pt-10">
+              <div class="mb-10">
+                <img class="inline-flex rounded-full shadow-lg mb-5 ring-2 ring-amber-200" src="./images/sharing-homilies.png" width="52" height="52" alt="Sharing Homilies" />
+                <div class="mb-4">
+                  <p class="text-xs uppercase tracking-[0.2em] text-amber-700/80 mb-2">Email verification</p>
+                  <h1 class="font-inter-tight font-bold text-gray-800 dark:text-gray-100 text-3xl mb-3">Sharing Homilies</h1>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">Confirming your subscription.</p>
+                </div>
+              </div>
+            </header>
+
+            <main class="grow pb-16">
+              <section class="max-w-xl mx-auto">
+                <div class="rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-6 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                  <div class="flex flex-col items-center text-center gap-4">
+                    <div id="icon" class="flex items-center justify-center w-16 h-16 rounded-full bg-amber-100/70 text-amber-800">
+                      <svg viewBox="0 0 24 24" class="w-7 h-7 fill-current" aria-hidden="true">
+                        <path d="M12 4a8 8 0 1 1-5.657 2.343A8 8 0 0 1 12 4Zm0 3.5a.75.75 0 0 0-.75.75v3.19l-2.22 1.28a.75.75 0 1 0 .75 1.3l2.6-1.5a.75.75 0 0 0 .37-.65V8.25A.75.75 0 0 0 12 7.5Z" />
+                      </svg>
+                    </div>
+                    <div class="space-y-2">
+                      <h2 id="title" class="text-xl font-semibold text-gray-800 dark:text-gray-100">Verifying your email...</h2>
+                      <p id="message" class="text-sm text-gray-600 dark:text-gray-400">Please wait while we verify your email address.</p>
+                    </div>
+                    <a href="/" class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 dark:hover:bg-amber-100 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 dark:before:opacity-100 dark:before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500">Return to Sharing Homilies</a>
+                  </div>
+                </div>
+              </section>
+            </main>
+
+            <footer class="space-y-8 text-center pb-12">
+              <p class="text-sm text-gray-400 dark:text-gray-600">Sharing Homilies &copy; 2026. Built with care for the community.</p>
+            </footer>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const email = urlParams.get('email');
+
+    const icon = document.getElementById('icon');
+    const title = document.getElementById('title');
+    const message = document.getElementById('message');
+
+    const renderSuccess = (text) => {
+      icon.className = 'flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100/80 text-emerald-700';
+      icon.innerHTML = '<svg viewBox="0 0 24 24" class="w-7 h-7 fill-current" aria-hidden="true"><path d="M9.55 16.2 5.8 12.45a.75.75 0 1 0-1.06 1.06l4.3 4.3c.29.3.77.3 1.06 0l9.2-9.2a.75.75 0 1 0-1.06-1.06l-8.7 8.65Z"/></svg>';
+      title.textContent = 'Email Verified!';
+      message.textContent = text;
+    };
+
+    const renderError = (text) => {
+      icon.className = 'flex items-center justify-center w-16 h-16 rounded-full bg-rose-100/80 text-rose-700';
+      icon.innerHTML = '<svg viewBox="0 0 24 24" class="w-7 h-7 fill-current" aria-hidden="true"><path d="m8.47 7.4 3.53 3.53 3.53-3.53a.75.75 0 0 1 1.06 1.06L13.06 12l3.53 3.53a.75.75 0 0 1-1.06 1.06L12 13.06l-3.53 3.53a.75.75 0 0 1-1.06-1.06L10.94 12 7.41 8.47A.75.75 0 0 1 8.47 7.4Z"/></svg>';
+      title.textContent = 'Verification Failed';
+      message.textContent = text;
+    };
+
+    if (token && email) {
+      fetch(`/web/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.verified) {
+            renderSuccess(data.message || 'Your email address has been verified.');
+          } else {
+            renderError(data.error || 'Unable to verify your email. Please try again.');
+          }
+        })
+        .catch(() => {
+          renderError('Network error. Please try again later.');
+        });
+    } else {
+      renderError('This verification link is invalid or incomplete.');
+    }
+  </script>
+</body>
+</html>

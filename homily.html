@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en" data-api-base="http://localhost:5000">
+
+    <head>
+        <meta charset="utf-8">
+        <title>Homily Details - Sharing Homilies</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="icon" href="./images/sharing-homilies.png">
+        <link href="./style.css" rel="stylesheet">
+        <style>
+            .interactive-btn {
+                transition: transform 0.2s ease-out;
+            }
+
+            .interactive-btn:hover {
+                transform: scale(1.03);
+            }
+
+            .interactive-btn:active {
+                transform: scale(0.98);
+            }
+
+            .profile-image {
+                position: relative;
+                border-radius: 50%;
+            }
+
+        .profile-image::before {
+            content: '';
+            position: absolute;
+                top: -3px;
+                left: -3px;
+                width: calc(100% + 6px);
+                height: calc(100% + 6px);
+                border-radius: 50%;
+                background: conic-gradient(from 0deg at 50% 50%, rgb(245 158 11) 0deg, rgb(245 158 11) 180deg, transparent 180deg, transparent 360deg);
+                z-index: 1;
+                pointer-events: none;
+            clip-path: inset(0 0 50% 0);
+        }
+
+        .feature-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .feature-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 9999px;
+            border: none;
+            background: rgba(255, 245, 225, 0.95);
+            color: rgba(120, 70, 10, 1);
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(120, 70, 10, 0.12);
+        }
+
+        .info-tooltip span {
+            position: absolute;
+            left: 0;
+            top: 120%;
+            min-width: 220px;
+            max-width: 260px;
+            padding: 0.5rem 0.75rem;
+            border-radius: 12px;
+            background: rgba(255, 248, 235, 0.98);
+            color: rgba(120, 70, 10, 0.95);
+            font-size: 12px;
+            line-height: 1.4;
+            opacity: 0;
+            transform: translateY(-4px);
+            pointer-events: none;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+            z-index: 30;
+            box-shadow: 0 12px 24px rgba(120, 70, 10, 0.18);
+            border: 1px solid rgba(180, 120, 30, 0.35);
+        }
+
+        .info-tooltip.tooltip-open span {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (hover: hover) {
+            .info-tooltip:hover span {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .icon-list {
+            display: grid;
+            gap: 0.6rem;
+        }
+
+        .icon-list li {
+            display: flex;
+            gap: 0.6rem;
+            align-items: flex-start;
+        }
+
+        .icon-list li svg {
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .checklist li {
+            font-weight: 600;
+            color: rgba(120, 70, 10, 0.9);
+        }
+
+        .checklist li span {
+            font-weight: 400;
+            color: inherit;
+        }
+
+        .two-col-list {
+            display: grid;
+            gap: 0.5rem 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .two-col-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+    </style>
+        <script>
+            if (localStorage.getItem('dark-mode') === 'false' || !('dark-mode' in localStorage)) {
+                document.querySelector('html').classList.remove('dark');
+            } else {
+                document.querySelector('html').classList.add('dark');
+            }
+        </script>
+    </head>
+
+    <body class="font-inter antialiased bg-amber-50 text-gray-800 dark:bg-gray-950 dark:text-gray-100 tracking-tight" style="background-image: radial-gradient(circle at 18% 20%, rgba(245, 232, 204, 0.9), transparent 62%), radial-gradient(circle at 82% 14%, rgba(250, 236, 210, 0.85), transparent 58%), radial-gradient(circle at 35% 78%, rgba(238, 222, 191, 0.75), transparent 64%), radial-gradient(circle at 70% 70%, rgba(232, 214, 182, 0.7), transparent 60%), linear-gradient(0deg, rgba(252, 244, 228, 0.85), rgba(252, 244, 228, 0.85)); background-size: 100% 100%;">
+        <div class="overflow-hidden supports-[overflow:clip]:overflow-clip">
+            <div class="max-w-[728px] mx-auto">
+                <div class="w-full bg-white dark:bg-gray-900 border-x border-amber-100 dark:border-gray-800 box-content" style="background-image: radial-gradient(circle at 10% 12%, rgba(255, 255, 255, 0.9), transparent 45%), radial-gradient(circle at 85% 18%, rgba(248, 248, 248, 0.9), transparent 48%), radial-gradient(circle at 20% 80%, rgba(250, 250, 250, 0.85), transparent 50%), radial-gradient(circle at 60% 35%, rgba(244, 244, 244, 0.6), transparent 55%), radial-gradient(circle at 40% 60%, rgba(245, 245, 245, 0.55), transparent 58%), linear-gradient(165deg, rgba(236, 236, 236, 0.25), rgba(255, 255, 255, 0) 40%), linear-gradient(6deg, rgba(232, 232, 232, 0.22), rgba(255, 255, 255, 0) 35%), linear-gradient(275deg, rgba(240, 240, 240, 0.18), rgba(255, 255, 255, 0) 45%); background-size: 100% 100%; background-blend-mode: multiply;">
+                    <div class="px-6 md:px-16">
+                        <div class="flex flex-col min-h-screen">
+
+                            <!-- Header -->
+                            <header class="text-center pt-8">
+                                <div class="flex justify-end mb-2">
+                                    <div class="inline-flex items-center justify-center ml-auto">
+                                        <input type="checkbox" name="light-switch" id="light-switch" class="light-switch sr-only" />
+                                        <label class="relative cursor-pointer p-2" for="light-switch">
+                                            <svg class="dark:hidden" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+                                                <path class="fill-gray-300"
+                                                    d="M7 0h2v2H7zM12.88 1.637l1.414 1.415-1.415 1.413-1.413-1.414zM14 7h2v2h-2zM12.95 14.433l-1.414-1.413 1.413-1.415 1.415 1.414zM7 14h2v2H7zM2.98 14.364l-1.413-1.415 1.414-1.414 1.414 1.415zM0 7h2v2H0zM3.05 1.706 4.463 3.12 3.05 4.535 1.636 3.12z" />
+                                                <path class="fill-gray-400"
+                                                    d="M8 4C5.8 4 4 5.8 4 8s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4Z" />
+                                            </svg>
+                                            <svg class="hidden dark:block" width="16" height="16"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path class="fill-gray-500"
+                                                    d="M6.2 1C3.2 1.8 1 4.6 1 7.9 1 11.8 4.2 15 8.1 15c3.3 0 6-2.2 6.9-5.2C9.7 11.2 4.8 6.3 6.2 1Z" />
+                                                <path class="fill-gray-400"
+                                                    d="M12.5 5a.625.625 0 0 1-.625-.625 1.252 1.252 0 0 0-1.25-1.25.625.625 0 1 1 0-1.25 1.252 1.252 0 0 0 1.25-1.25.625.625 0 1 1 1.25 0c.001.69.56 1.249 1.25 1.25a.625.625 0 1 1 0 1.25c-.69.001-1.249.56-1.25 1.25A.625.625 0 0 1 12.5 5Z" />
+                                            </svg>
+                                            <span class="sr-only">Switch to light / dark version</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-10">
+                                    <img class="inline-flex shadow-lg mb-5 profile-image" src="./images/sharing-homilies.png" width="120" height="120" alt="Sharing Homilies" />
+                                    <div class="mb-7">
+                                        <p class="text-xs uppercase tracking-[0.2em] text-amber-700/80 mb-2">Homily detail</p>
+                                        <h1 class="font-inter-tight font-bold text-gray-800 dark:text-gray-100 text-3xl mb-3">Sharing Homilies</h1>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Full context, summary, and metadata for a single homily.</p>
+                                    </div>
+                                    <div class="flex flex-wrap items-center justify-center gap-3">
+                                        <a class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 dark:hover:bg-amber-100 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 dark:before:opacity-100 dark:before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500" href="./index.html">Back to home</a>
+                                        <a class="btn-sm interactive-btn text-amber-700 dark:text-gray-200 border border-amber-200 dark:border-gray-700 hover:border-amber-300 dark:hover:border-gray-600 shadow-lg shadow-black/25 dark:shadow-black/40 scroll-to-subscribe" href="#subscribe">Get updates</a>
+                                    </div>
+                                </div>
+                                <div class="group flex justify-center gap-4">
+                                    <img class="rounded-xl even:rotate-2 odd:-rotate-2 group-hover:even:rotate-0 group-hover:odd:rotate-0 transition duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] shadow-lg shadow-black/25 dark:shadow-black/40" src="./images/header-image-01.png" width="245" height="160" alt="Church detail" />
+                                    <img class="rounded-xl even:rotate-2 odd:-rotate-2 group-hover:even:rotate-0 group-hover:odd:rotate-0 transition duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] shadow-lg shadow-black/25 dark:shadow-black/40" src="./images/header-image-03.png" width="245" height="160" alt="Homily highlight" />
+                                    <img class="rounded-xl even:rotate-2 odd:-rotate-2 group-hover:even:rotate-0 group-hover:odd:rotate-0 transition duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] shadow-lg shadow-black/25 dark:shadow-black/40" src="./images/header-image-02.png" width="245" height="160" alt="Community" />
+                                </div>
+                            </header>
+
+                            <!-- Content -->
+                            <main class="grow py-14 space-y-14">
+                                <section id="homily-detail" class="space-y-6">
+                                        <div class="flex flex-col gap-4 md:flex-row md:items-center">
+                                            <div class="relative w-full md:w-40 md:min-w-[10rem] aspect-square overflow-hidden rounded-xl bg-white/70 dark:bg-gray-900/60 border border-amber-100/60 dark:border-gray-700/60 shadow-lg shadow-black/25 dark:shadow-black/40">
+                                                <img id="homily-image" class="w-full h-full object-cover" src="./images/header-image-01.png" alt="Homily cover" />
+                                            </div>
+                                            <div class="flex-1 space-y-2">
+                                                <p id="homily-date" class="text-xs uppercase tracking-[0.22em] text-amber-700/70 dark:text-amber-200/70"></p>
+                                                <h2 id="homily-title" class="font-inter-tight text-2xl font-semibold text-gray-800 dark:text-gray-100">Loading homily…</h2>
+                                                <div class="flex flex-col gap-1 text-sm text-gray-600 dark:text-gray-400">
+                                                    <span class="inline-flex items-center gap-2">
+                                                        <i data-lucide="church" class="w-4 h-4 text-amber-700/80 dark:text-amber-200/80" aria-hidden="true"></i>
+                                                        <span id="homily-church-text"></span>
+                                                    </span>
+                                                    <span class="inline-flex items-center gap-2">
+                                                        <i data-lucide="map-pin" class="w-4 h-4 text-amber-700/70 dark:text-amber-200/70" aria-hidden="true"></i>
+                                                        <span id="homily-county-text"></span>
+                                                    </span>
+                                                </div>
+                                                <p id="homily-meta" class="text-sm text-gray-600 dark:text-gray-400"></p>
+                                            </div>
+                                        </div>
+                                        <div class="space-y-4">
+                                            <div class="rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                                <div class="feature-header mb-2">
+                                                    <div class="feature-title text-xs uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">
+                                                        <i data-lucide="file-text" class="w-4 h-4" aria-hidden="true"></i>
+                                                        Summary
+                                                    </div>
+                                                    <div class="info-tooltip" data-tooltip>
+                                                        <i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                                        <span>Short overview of the homily's core message.</span>
+                                                    </div>
+                                                </div>
+                                                <p id="homily-summary" class="text-sm text-gray-700 dark:text-gray-200 leading-relaxed"></p>
+                                            </div>
+                                            <div class="rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                                <div class="feature-header mb-2">
+                                                    <div class="feature-title text-xs uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">
+                                                        <i data-lucide="list-checks" class="w-4 h-4" aria-hidden="true"></i>
+                                                        Takeaways
+                                                    </div>
+                                                    <div class="info-tooltip" data-tooltip>
+                                                        <i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                                        <span>Key points to remember from the homily.</span>
+                                                    </div>
+                                                </div>
+                                                <ul id="homily-points" class="two-col-list text-sm text-gray-600 dark:text-gray-400"></ul>
+                                            </div>
+                                            <div class="rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                                <div class="feature-header mb-2">
+                                                    <div class="feature-title text-xs uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">
+                                                        <i data-lucide="clipboard-check" class="w-4 h-4" aria-hidden="true"></i>
+                                                        Action items
+                                                    </div>
+                                                    <div class="info-tooltip" data-tooltip>
+                                                        <i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                                        <span>Concrete actions inspired by the homily.</span>
+                                                    </div>
+                                                </div>
+                                                <ul id="homily-actions" class="icon-list checklist text-sm text-gray-600 dark:text-gray-400"></ul>
+                                            </div>
+                                            <div class="rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                                <div class="feature-header mb-2">
+                                                  <div class="feature-title text-xs uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">
+                                                          <i data-lucide="book-open" class="w-4 h-4" aria-hidden="true"></i>
+                                                          Verses
+                                                      </div>
+                                                    <div class="info-tooltip" data-tooltip>
+                                                          <i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                                        <span>Scripture references highlighted in the homily.</span>
+                                                    </div>
+                                                </div>
+                                                <ul id="homily-verses" class="text-sm text-gray-600 dark:text-gray-400 space-y-1"></ul>
+                                            </div>
+                                            <div class="grid gap-3 md:grid-cols-3">
+                                                <div class="rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                                    <div class="feature-header mb-2">
+                                                          <div class="feature-title text-xs uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">
+                                                              <i data-lucide="layers" class="w-4 h-4" aria-hidden="true"></i>
+                                                              Themes
+                                                          </div>
+                                                        <div class="info-tooltip" data-tooltip>
+                                                              <i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                                            <span>Primary theological themes identified.</span>
+                                                        </div>
+                                                    </div>
+                                                    <div id="homily-themes" class="flex flex-wrap gap-2 text-sm text-gray-600 dark:text-gray-400"></div>
+                                                </div>
+                                                <div class="rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                                    <div class="feature-header mb-2">
+                                                          <div class="feature-title text-xs uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">
+                                                              <i data-lucide="users" class="w-4 h-4" aria-hidden="true"></i>
+                                                              Audience
+                                                          </div>
+                                                        <div class="info-tooltip" data-tooltip>
+                                                              <i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                                            <span>Who the homily is primarily speaking to.</span>
+                                                        </div>
+                                                    </div>
+                                                    <div id="homily-audience" class="flex flex-wrap gap-2 text-sm text-gray-600 dark:text-gray-400"></div>
+                                                </div>
+                                                <div class="rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                                    <div class="feature-header mb-2">
+                                                          <div class="feature-title text-xs uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">
+                                                              <i data-lucide="message-square" class="w-4 h-4" aria-hidden="true"></i>
+                                                              Devices
+                                                          </div>
+                                                        <div class="info-tooltip" data-tooltip>
+                                                              <i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                                            <span>Storytelling or rhetorical techniques used.</span>
+                                                        </div>
+                                                    </div>
+                                                    <div id="homily-devices" class="flex flex-wrap gap-2 text-sm text-gray-600 dark:text-gray-400"></div>
+                                                </div>
+                                            </div>
+                                            <div class="rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                                <div class="feature-header mb-2">
+                                                    <div class="feature-title text-xs uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">
+                                                        <i data-lucide="sparkles" class="w-4 h-4" aria-hidden="true"></i>
+                                                        Relevance
+                                                    </div>
+                                                    <div class="info-tooltip" data-tooltip>
+                                                        <i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                                        <span>Entities or topics linked to the homily.</span>
+                                                    </div>
+                                                </div>
+                                                <ul id="homily-relevance" class="text-sm text-gray-600 dark:text-gray-400 space-y-1"></ul>
+                                            </div>
+                                            <div class="rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                                <div class="feature-header mb-2">
+                                                      <div class="feature-title text-xs uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">
+                                                          <i data-lucide="book" class="w-4 h-4" aria-hidden="true"></i>
+                                                          Homily
+                                                      </div>
+                                                    <div class="info-tooltip" data-tooltip>
+                                                        <i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                                        <span>Isolated homily text only (no full transcript).</span>
+                                                    </div>
+                                                </div>
+                                                <p id="homily-text" class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line"></p>
+                                            </div>
+                                        </div>
+                                </section>
+
+                                <section id="subscribe">
+                                    <h2 class="font-inter-tight text-lg font-semibold text-gray-800 dark:text-gray-100 mb-6">Stay in the loop</h2>
+                                    <div class="p-6 rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                        <form>
+                                            <div class="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+                                                <input class="flex-1 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-600 border border-amber-200 dark:border-gray-700 rounded-lg px-3 py-2 focus:ring-0 focus:outline-hidden" type="email" name="email" aria-label="Enter your email to subscribe" placeholder="Enter your email..." autocomplete="off" />
+                                                <button type="submit" class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 dark:hover:bg-amber-100 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 dark:before:opacity-100 dark:before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500">Join newsletter</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </section>
+                            </main>
+
+                            <footer class="space-y-8 text-center pb-16">
+                                <div class="space-y-4">
+                                    <p class="text-sm text-gray-400 dark:text-gray-600">Sharing Homilies &copy; 2026. Built with care for the community.</p>
+                                </div>
+                            </footer>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="./js/vendors/alpinejs.min.js" defer></script>
+        <script src="./js/main.js"></script>
+        <script src="https://unpkg.com/lucide@latest"></script>
+        <script>
+            const apiBaseLocal = typeof apiBase !== 'undefined'
+                ? apiBase
+                : (document.documentElement.dataset.apiBase || 'http://localhost:5000');
+            const urlParams = new URLSearchParams(window.location.search);
+            const homilyId = urlParams.get('id');
+
+            const setText = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value || '';
+            };
+
+            const setList = (id, items) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerHTML = '';
+                (items || []).forEach((item) => {
+                    const li = document.createElement('li');
+                    const span = document.createElement('span');
+                    span.textContent = item;
+                    li.appendChild(span);
+                    el.appendChild(li);
+                });
+            };
+
+            const setVerseList = (id, items) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerHTML = '';
+                (items || []).forEach((item) => {
+                    const li = document.createElement('li');
+                    const text = String(item || '');
+                    const colonIndex = text.indexOf(':');
+                    if (colonIndex > -1) {
+                        const strong = document.createElement('strong');
+                        strong.textContent = text.slice(0, colonIndex + 1);
+                        const rest = document.createElement('span');
+                        rest.textContent = text.slice(colonIndex + 1);
+                        li.appendChild(strong);
+                        li.appendChild(rest);
+                    } else {
+                        const span = document.createElement('span');
+                        span.textContent = text;
+                        li.appendChild(span);
+                    }
+                    el.appendChild(li);
+                });
+            };
+
+            const createIcon = (iconName, extraClass = '') => {
+                const icon = document.createElement('i');
+                icon.setAttribute('data-lucide', iconName);
+                icon.setAttribute('class', `w-5 h-5 text-amber-800/90 dark:text-amber-200/90 ${extraClass}`.trim());
+                icon.setAttribute('aria-hidden', 'true');
+                return icon;
+            };
+
+            const refreshLucide = () => {
+                if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                    window.lucide.createIcons();
+                }
+            };
+
+            const setIconList = (id, items, iconName, extraClass = '') => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerHTML = '';
+                (items || []).forEach((item) => {
+                    const li = document.createElement('li');
+                    const icon = createIcon(iconName, extraClass);
+                    const span = document.createElement('span');
+                    span.textContent = item;
+                    li.appendChild(icon);
+                    li.appendChild(span);
+                    el.appendChild(li);
+                });
+                refreshLucide();
+            };
+
+            const formatPill = (value) => {
+                if (!value) return '';
+                const text = String(value).replace(/_/g, ' ');
+                return text.charAt(0).toUpperCase() + text.slice(1);
+            };
+
+            const setPills = (id, items) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerHTML = '';
+                (items || []).forEach((item) => {
+                    const span = document.createElement('span');
+                    span.className = 'text-xs font-medium px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200/60';
+                    span.textContent = formatPill(item);
+                    el.appendChild(span);
+                });
+            };
+
+            const titleCaseFirst = (value) => {
+                if (!value) return '';
+                const text = String(value);
+                return text.charAt(0).toUpperCase() + text.slice(1);
+            };
+
+            const capitalizeFirst = (value) => {
+                if (!value) return '';
+                const text = String(value);
+                return text.charAt(0).toUpperCase() + text.slice(1);
+            };
+
+            const formatDate = (value) => {
+                if (!value) return '';
+                return String(value).split(' ')[0];
+            };
+
+            const getChurchName = (value) => {
+                if (!value) return '';
+                const raw = String(value);
+                const parts = raw.split('/').filter(Boolean);
+                return parts.length ? parts[parts.length - 1] : raw;
+            };
+
+            const loadHomily = async () => {
+                if (!homilyId) {
+                    setText('homily-title', 'Homily not found');
+                    setText('homily-summary', 'No homily id provided in the URL.');
+                    return;
+                }
+                try {
+                    const response = await fetch(`${apiBaseLocal}/web/homilies/${encodeURIComponent(homilyId)}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    const data = await response.json();
+                    setText('homily-title', data.title || data.churchName || 'Homily');
+                    setText('homily-date', formatDate(data.date));
+                    const countyText = titleCaseFirst(data.county);
+                    const churchText = titleCaseFirst(getChurchName(data.churchName || data.church));
+                    setText('homily-county', countyText);
+                    setText('homily-church', churchText);
+                    setText('homily-church-text', churchText);
+                    setText('homily-county-text', countyText ? `County ${countyText}` : '');
+                    setText('homily-meta', data.priest ? `Homily by ${data.priest}` : '');
+                    setText('homily-summary', data.notification_summary || data.summary || data.homily || '');
+                    setText('homily-text', data.homily || data.transcript || '');
+                    setList('homily-points', data.takeaway_points || data.points || []);
+                    setIconList(
+                        'homily-actions',
+                        data.action_items || data.actions || [],
+                        'check-square',
+                        'w-3.5 h-3.5'
+                    );
+                    const verses = (data.verses || []).map((v) => {
+                        if (typeof v === 'string') return v;
+                        const ref = [v.book, v.chapter, v.verse_start, v.verse_end].filter(Boolean).join(' ');
+                        return v.quoted_text ? `${ref}: ${v.quoted_text}` : ref;
+                    });
+                    setVerseList('homily-verses', verses);
+                    setPills('homily-themes', data.theological_themes || []);
+                    setPills('homily-audience', data.audience_focus || []);
+                    setPills('homily-devices', data.rhetorical_devices || []);
+                    const relevance = (data.relevance || data.personal || []).map((r) => {
+                        if (typeof r === 'string') return r;
+                        return r.entity ? `${r.entity}: ${r.explanation || ''}`.trim() : r.explanation;
+                    });
+                    setVerseList('homily-relevance', relevance.map(capitalizeFirst));
+
+                    const imageEl = document.getElementById('homily-image');
+                    if (imageEl && Array.isArray(data.dalle) && data.dalle.length > 0) {
+                        imageEl.src = data.dalle[0];
+                    }
+                } catch (error) {
+                    setText('homily-title', 'Unable to load homily');
+                    setText('homily-summary', 'Please try again later.');
+                }
+            };
+
+            const subscribeBtn = document.querySelector('.scroll-to-subscribe');
+            if (subscribeBtn) {
+                subscribeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const subscribeSection = document.getElementById('subscribe');
+                    if (subscribeSection) {
+                        subscribeSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            }
+
+            document.querySelectorAll('[data-tooltip]').forEach((tooltip) => {
+                tooltip.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const isOpen = tooltip.classList.contains('tooltip-open');
+                    document.querySelectorAll('[data-tooltip]').forEach((el) => el.classList.remove('tooltip-open'));
+                    if (!isOpen) tooltip.classList.add('tooltip-open');
+                });
+            });
+
+            document.addEventListener('click', () => {
+                document.querySelectorAll('[data-tooltip]').forEach((el) => el.classList.remove('tooltip-open'));
+            });
+
+            refreshLucide();
+            loadHomily().finally(() => {
+                refreshLucide();
+            });
+        </script>
+
+    </body>
+
+</html>
+

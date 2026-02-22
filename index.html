@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" data-api-base="http://localhost:5000">
+
+    <head>
+        <meta charset="utf-8">
+        <title>Sharing Homilies</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="icon" href="./images/sharing-homilies.png">
+        <link href="./style.css" rel="stylesheet">
+        <style>
+            .homily-card-enter {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+                animation: homilyCardEnter 0.6s ease-out forwards;
+            }
+
+            .homily-card-enter:nth-child(1) { animation-delay: 0.1s; }
+            .homily-card-enter:nth-child(2) { animation-delay: 0.2s; }
+            .homily-card-enter:nth-child(3) { animation-delay: 0.3s; }
+            .homily-card-enter:nth-child(4) { animation-delay: 0.4s; }
+            .homily-card-enter:nth-child(5) { animation-delay: 0.5s; }
+            .homily-card-enter:nth-child(6) { animation-delay: 0.6s; }
+
+            @keyframes homilyCardEnter {
+                0% {
+                    opacity: 0;
+                    transform: translateY(-30px) scale(0.9) rotateX(-10deg);
+                }
+                50% {
+                    opacity: 0.7;
+                    transform: translateY(-10px) scale(0.95) rotateX(-2deg);
+                }
+                100% {
+                    opacity: 1;
+                    transform: translateY(0) scale(1) rotateX(0deg);
+                }
+            }
+
+            .homily-card {
+                transition: transform 0.2s ease-out !important;
+            }
+
+            .homily-card:hover {
+                transform: scale(1.03) !important;
+            }
+
+            .homily-card:active {
+                transform: scale(0.98) !important;
+            }
+
+            .about-card {
+                transition: transform 0.2s ease-out;
+            }
+
+            .about-card:hover {
+                transform: scale(1.03);
+            }
+
+            .about-card:active {
+                transform: scale(0.98);
+            }
+
+            .interactive-btn {
+                transition: transform 0.2s ease-out;
+            }
+
+            .interactive-btn:hover {
+                transform: scale(1.03);
+            }
+
+            .interactive-btn:active {
+                transform: scale(0.98);
+            }
+
+            .profile-image {
+                position: relative;
+                border-radius: 50%;
+            }
+
+            .profile-image::before {
+                content: '';
+                position: absolute;
+                top: -3px;
+                left: -3px;
+                width: calc(100% + 6px);
+                height: calc(100% + 6px);
+                border-radius: 50%;
+                background: conic-gradient(from 0deg at 50% 50%, rgb(245 158 11) 0deg, rgb(245 158 11) 180deg, transparent 180deg, transparent 360deg);
+                z-index: 1;
+                pointer-events: none;
+                clip-path: inset(0 0 50% 0);
+            }
+
+            .homily-grid-refreshing .homily-card {
+                animation: homilyCardRefresh 0.8s ease-in-out;
+            }
+
+            @keyframes homilyCardRefresh {
+                0%, 100% {
+                    transform: translateY(0) rotateX(0deg);
+                }
+                25% {
+                    transform: translateY(-5px) rotateX(-2deg);
+                }
+                50% {
+                    transform: translateY(-10px) rotateX(-4deg);
+                }
+                75% {
+                    transform: translateY(-5px) rotateX(-2deg);
+                }
+            }
+        </style>
+        <script>
+            if (localStorage.getItem('dark-mode') === 'false' || !('dark-mode' in localStorage)) {
+                document.querySelector('html').classList.remove('dark');
+            } else {
+                document.querySelector('html').classList.add('dark');
+            }
+        </script>
+    </head>
+
+    <body class="font-inter antialiased bg-amber-50 text-gray-800 dark:bg-gray-950 dark:text-gray-100 tracking-tight" style="background-image: radial-gradient(circle at 18% 20%, rgba(245, 232, 204, 0.9), transparent 62%), radial-gradient(circle at 82% 14%, rgba(250, 236, 210, 0.85), transparent 58%), radial-gradient(circle at 35% 78%, rgba(238, 222, 191, 0.75), transparent 64%), radial-gradient(circle at 70% 70%, rgba(232, 214, 182, 0.7), transparent 60%), linear-gradient(0deg, rgba(252, 244, 228, 0.85), rgba(252, 244, 228, 0.85)); background-size: 100% 100%;">
+        <div class="overflow-hidden supports-[overflow:clip]:overflow-clip">
+            <div class="max-w-[728px] mx-auto">
+                <div class="w-full bg-white dark:bg-gray-900 border-x border-amber-100 dark:border-gray-800 box-content" style="background-image: radial-gradient(circle at 10% 12%, rgba(255, 255, 255, 0.9), transparent 45%), radial-gradient(circle at 85% 18%, rgba(248, 248, 248, 0.9), transparent 48%), radial-gradient(circle at 20% 80%, rgba(250, 250, 250, 0.85), transparent 50%), radial-gradient(circle at 60% 35%, rgba(244, 244, 244, 0.6), transparent 55%), radial-gradient(circle at 40% 60%, rgba(245, 245, 245, 0.55), transparent 58%), linear-gradient(165deg, rgba(236, 236, 236, 0.25), rgba(255, 255, 255, 0) 40%), linear-gradient(6deg, rgba(232, 232, 232, 0.22), rgba(255, 255, 255, 0) 35%), linear-gradient(275deg, rgba(240, 240, 240, 0.18), rgba(255, 255, 255, 0) 45%); background-size: 100% 100%; background-blend-mode: multiply;">
+                    <div class="px-6 md:px-16">
+                        <div class="flex flex-col min-h-screen">
+
+                            <!-- Header -->
+                            <header class="text-center pt-8">
+                                <div class="flex justify-end mb-2">
+                                    <div class="inline-flex items-center justify-center ml-auto">
+                                        <input type="checkbox" name="light-switch" id="light-switch" class="light-switch sr-only" />
+                                        <label class="relative cursor-pointer p-2" for="light-switch">
+                                            <svg class="dark:hidden" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+                                                <path class="fill-gray-300"
+                                                    d="M7 0h2v2H7zM12.88 1.637l1.414 1.415-1.415 1.413-1.413-1.414zM14 7h2v2h-2zM12.95 14.433l-1.414-1.413 1.413-1.415 1.415 1.414zM7 14h2v2H7zM2.98 14.364l-1.413-1.415 1.414-1.414 1.414 1.415zM0 7h2v2H0zM3.05 1.706 4.463 3.12 3.05 4.535 1.636 3.12z" />
+                                                <path class="fill-gray-400"
+                                                    d="M8 4C5.8 4 4 5.8 4 8s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4Z" />
+                                            </svg>
+                                            <svg class="hidden dark:block" width="16" height="16"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path class="fill-gray-500"
+                                                    d="M6.2 1C3.2 1.8 1 4.6 1 7.9 1 11.8 4.2 15 8.1 15c3.3 0 6-2.2 6.9-5.2C9.7 11.2 4.8 6.3 6.2 1Z" />
+                                                <path class="fill-gray-400"
+                                                    d="M12.5 5a.625.625 0 0 1-.625-.625 1.252 1.252 0 0 0-1.25-1.25.625.625 0 1 1 0-1.25 1.252 1.252 0 0 0 1.25-1.25.625.625 0 1 1 1.25 0c.001.69.56 1.249 1.25 1.25a.625.625 0 1 1 0 1.25c-.69.001-1.249.56-1.25 1.25A.625.625 0 0 1 12.5 5Z" />
+                                            </svg>
+                                            <span class="sr-only">Switch to light / dark version</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-10">
+                                    <img class="inline-flex shadow-lg mb-5 profile-image" src="./images/sharing-homilies.png" width="120" height="120" alt="Sharing Homilies" />
+                                    <div class="mb-7">
+                                        <p class="text-xs uppercase tracking-[0.2em] text-amber-700/80 mb-2">Daily Reflections</p>
+                                        <h1 class="font-inter-tight font-bold text-gray-800 dark:text-gray-100 text-3xl mb-3">Sharing Homilies</h1>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Daily homilies, summaries, and reflections sourced from churches across Ireland.</p>
+                                    </div>
+                                    <div class="flex flex-wrap items-center justify-center gap-3">
+                                        <a class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 dark:hover:bg-amber-100 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 dark:before:opacity-100 dark:before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500" href="./dive-deeper.html">Dive deeper</a>
+                                        <a class="btn-sm interactive-btn text-amber-700 dark:text-gray-200 border border-amber-200 dark:border-gray-700 hover:border-amber-300 dark:hover:border-gray-600 shadow-lg shadow-black/25 dark:shadow-black/40" href="./research.html">Our research</a>
+                                        <a class="btn-sm interactive-btn text-amber-700 dark:text-gray-200 border border-amber-200 dark:border-gray-700 hover:border-amber-300 dark:hover:border-gray-600 shadow-lg shadow-black/25 dark:shadow-black/40 scroll-to-subscribe" href="#subscribe">Get updates</a>
+                                    </div>
+                                </div>
+                                <div class="group flex justify-center gap-4">
+                                    <img class="rounded-xl even:rotate-2 odd:-rotate-2 group-hover:even:rotate-0 group-hover:odd:rotate-0 transition duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] shadow-lg shadow-black/25 dark:shadow-black/40" src="./images/header-image-01.png" width="245" height="160" alt="Church detail" />
+                                    <img class="rounded-xl even:rotate-2 odd:-rotate-2 group-hover:even:rotate-0 group-hover:odd:rotate-0 transition duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] shadow-lg shadow-black/25 dark:shadow-black/40" src="./images/header-image-03.png" width="245" height="160" alt="Homily highlight" />
+                                    <img class="rounded-xl even:rotate-2 odd:-rotate-2 group-hover:even:rotate-0 group-hover:odd:rotate-0 transition duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] shadow-lg shadow-black/25 dark:shadow-black/40" src="./images/header-image-02.png" width="245" height="160" alt="Community" />
+                                </div>
+                            </header>
+
+                            <!-- Content -->
+                            <main class="grow py-14 space-y-14">
+
+                                <section id="about">
+                                    <h2 class="font-inter-tight text-lg font-semibold text-gray-800 dark:text-gray-100 mb-6">About the archive</h2>
+                                    <div class="grid gap-4 md:grid-cols-3">
+                                        <article class="about-card p-6 rounded-xl bg-linear-to-tr from-amber-50/90 to-amber-100/70 dark:bg-linear-to-tr dark:from-gray-800 dark:to-gray-800/[0.65] shadow-lg shadow-black/25 dark:shadow-black/40">
+                                            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">A Living Archive</h3>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Structured collection of Catholic homilies from Irish parishes, transcribed and indexed for research.</p>
+                                        </article>
+                                        <article class="about-card p-6 rounded-xl bg-linear-to-tr from-amber-50/90 to-amber-100/70 dark:bg-linear-to-tr dark:from-gray-800 dark:to-gray-800/[0.65] shadow-lg shadow-black/25 dark:shadow-black/40">
+                                            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">AI-Powered Analysis</h3>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Natural language processing reveals themes, emotions, and rhetorical patterns in preaching.</p>
+                                        </article>
+                                        <article class="about-card p-6 rounded-xl bg-linear-to-tr from-amber-50/80 to-amber-100/60 dark:bg-linear-to-tr dark:from-gray-800 dark:to-gray-800/[0.65] shadow-lg shadow-black/25 dark:shadow-black/40">
+                                            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">Scripture & Society</h3>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">How homilies engage with scripture and respond to Irish cultural realities.</p>
+                                        </article>
+                                    </div>
+                                </section>
+
+                                <section id="homilies">
+                                    <div class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                                        <div>
+                                            <h2 class="font-inter-tight text-lg font-semibold text-gray-800 dark:text-gray-100">Latest homilies</h2>
+                                            <p id="homily-status" class="text-sm text-gray-600 dark:text-gray-400">Loading homilies…</p>
+                                        </div>
+                                        <div class="flex gap-3">
+                                            <button id="refresh-homilies" class="btn-sm interactive-btn cursor-pointer text-amber-700 dark:text-gray-200 border border-amber-200 dark:border-gray-700 hover:border-amber-300 dark:hover:border-gray-600 shadow-lg shadow-black/25 dark:shadow-black/40 disabled:opacity-50 disabled:cursor-not-allowed">Refresh</button>
+                                        </div>
+                                    </div>
+
+                                    <div id="homily-grid" class="mt-8 space-y-4"></div>
+                                    <div id="pagination-container" class="flex items-center justify-center gap-4 mt-8"></div>
+                                    <div id="homily-empty" class="mt-6 hidden rounded-xl border border-dashed border-gray-200 dark:border-gray-700 p-6 text-sm text-gray-500 dark:text-gray-400">
+                                        No homilies available yet. Check back soon for new uploads.
+                                    </div>
+                                </section>
+
+                                <section id="subscribe">
+                                    <h2 class="font-inter-tight text-lg font-semibold text-gray-800 dark:text-gray-100 mb-6">Stay in the loop</h2>
+                                    <div class="p-6 rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                        <form>
+                                            <div class="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+                                                <input class="flex-1 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-600 border border-amber-200 dark:border-gray-700 rounded-lg px-3 py-2 focus:ring-0 focus:outline-hidden" type="email" name="email" aria-label="Enter your email to subscribe" placeholder="Enter your email..." autocomplete="off" />
+                                                <button type="submit" class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 dark:hover:bg-amber-100 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 dark:before:opacity-100 dark:before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500 disabled:opacity-60 disabled:cursor-not-allowed">Join newsletter</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </section>
+
+                            </main>
+
+                            <footer class="space-y-8 text-center pb-16">
+                                <div class="space-y-4">
+                                    <p class="text-sm text-gray-400 dark:text-gray-600">Sharing Homilies &copy; 2026. Built with care for the community.</p>
+                                </div>
+                            </footer>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <template id="homily-card-template">
+            <article class="relative group cursor-pointer homily-card">
+                <div class="absolute top-4 right-4 text-amber-700/70 dark:text-amber-200/70 group-hover:text-amber-800 dark:group-hover:text-amber-100 group-hover:rotate-45 transition" aria-hidden="true">
+                    <svg class="fill-current opacity-80 dark:opacity-100" xmlns="http://www.w3.org/2000/svg" width="10" height="10">
+                        <path d="M1.018 10 0 8.983l7.572-7.575H1.723L1.736 0H10v8.266H8.577l.013-5.841L1.018 10Z" />
+                    </svg>
+                </div>
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-stretch rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                    <div class="relative w-full sm:w-36 sm:min-w-[9rem] sm:max-w-[9rem] aspect-square overflow-hidden rounded-xl bg-white/70 dark:bg-gray-900/60 border border-amber-100/60 dark:border-gray-700/60">
+                        <img class="w-full h-full object-cover transition duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)]" data-homily-image alt="Homily cover" loading="lazy" />
+                        <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-gray-900/70 to-transparent text-white">
+                            <p class="text-[10px] uppercase tracking-[0.2em]" data-homily-church></p>
+                            <p class="text-xs font-semibold" data-homily-county></p>
+                        </div>
+                    </div>
+                    <div class="flex-1 space-y-2">
+                        <p class="text-xs uppercase tracking-[0.22em] text-amber-700/70 dark:text-amber-200/70" data-homily-date></p>
+                        <p class="text-base text-gray-700 dark:text-gray-200 leading-relaxed" data-homily-summary></p>
+                    </div>
+                </div>
+            </article>
+        </template>
+
+        <dialog id="homily-modal" class="rounded-2xl p-0 shadow-xl backdrop:bg-gray-900/70 max-w-3xl w-[90%]">
+            <div class="bg-white dark:bg-gray-900 p-6 space-y-4">
+                <div class="flex justify-between items-start gap-4">
+                    <div>
+                        <p id="modal-meta" class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400"></p>
+                        <h3 id="modal-title" class="text-xl font-semibold text-gray-800 dark:text-gray-100"></h3>
+                    </div>
+                    <button id="modal-close" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Close</button>
+                </div>
+                <div class="space-y-3">
+                    <p id="modal-homily" class="text-sm text-gray-700 dark:text-gray-200 leading-relaxed"></p>
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">Takeaway points</h4>
+                        <ul id="modal-points" class="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400"></ul>
+                    </div>
+                </div>
+            </div>
+        </dialog>
+
+        <script src="./js/vendors/alpinejs.min.js" defer></script>
+        <script src="./js/main.js"></script>
+
+    </body>
+
+</html>

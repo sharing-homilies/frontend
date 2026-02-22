@@ -1,0 +1,19 @@
+{
+  "name": "devfolio-html",
+  "description": "DevFolio HTML template - Cruip.com",
+  "version": "1.0.0",
+  "homepage": "https://cruip.com",
+  "author": "Pasquale Vitiello",
+  "license": "https://cruip.com/terms/",
+  "scripts": {
+    "dev": "concurrently -k \"npx @tailwindcss/cli -i ./css/style.css -o ./style.css --watch\" \"vite\"",
+    "build": "npx @tailwindcss/cli -i ./css/style.css -o ./style.css && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "tailwindcss": "^4.0.0",
+    "concurrently": "^9.2.0",
+    "vite": "^5.4.3"
+  }
+}
