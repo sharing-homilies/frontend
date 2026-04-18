@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" data-api-base="%VITE_API_BASE%">
+<head>
+    <meta charset="utf-8">
+    <title>General Stats - Sharing Homilies</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="icon" href="./images/sharing-homilies.png">
+    <link href="/style.css" rel="stylesheet">
+    <style>
+        .interactive-btn { transition: transform 0.2s ease-out; }
+        .interactive-btn:hover { transform: scale(1.03); }
+        .interactive-btn:active { transform: scale(0.98); }
+        .profile-image { position: relative; border-radius: 50%; }
+        .profile-image::before { content: ''; position: absolute; top: -3px; left: -3px; width: calc(100% + 6px); height: calc(100% + 6px); border-radius: 50%; background: conic-gradient(from 0deg at 50% 50%, rgb(245 158 11) 0deg, rgb(245 158 11) 180deg, transparent 180deg, transparent 360deg); z-index: 1; pointer-events: none; clip-path: inset(0 0 50% 0); }
+        .info-tooltip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 9999px; border: none; background: rgba(255, 245, 225, 0.95); color: rgba(120, 70, 10, 1); cursor: pointer; box-shadow: 0 3px 8px rgba(120, 70, 10, 0.12); }
+        .info-tooltip span { position: absolute; right: 0; top: 120%; min-width: 260px; max-width: 320px; padding: 0.6rem 0.8rem; border-radius: 12px; background: rgba(255, 248, 235, 0.98); color: rgba(120, 70, 10, 0.95); font-size: 12px; line-height: 1.5; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 30; box-shadow: 0 12px 24px rgba(120, 70, 10, 0.18); border: 1px solid rgba(180, 120, 30, 0.35); }
+        .info-tooltip.tooltip-open span { opacity: 1; transform: translateY(0); }
+        @media (hover: hover) { .info-tooltip:hover span { opacity: 1; transform: translateY(0); } }
+        .chart-wrap { position: relative; min-height: 160px; }
+        .chart-spinner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255, 252, 244, 0.6); border-radius: 12px; }
+        .chart-spinner::before { content: ''; width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(180, 120, 30, 0.3); border-top-color: rgba(120, 70, 10, 0.7); animation: spin 0.9s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+    <script>
+        if (localStorage.getItem('dark-mode') === 'false' || !('dark-mode' in localStorage)) { document.querySelector('html').classList.remove('dark'); } else { document.querySelector('html').classList.add('dark'); }
+    </script>
+</head>
+<body class="font-inter antialiased bg-amber-50 text-gray-800 dark:bg-gray-950 dark:text-gray-100 tracking-tight" style="background-image: radial-gradient(circle at 18% 20%, rgba(245, 232, 204, 0.9), transparent 62%), radial-gradient(circle at 82% 14%, rgba(250, 236, 210, 0.85), transparent 58%), radial-gradient(circle at 35% 78%, rgba(238, 222, 191, 0.75), transparent 64%), radial-gradient(circle at 70% 70%, rgba(232, 214, 182, 0.7), transparent 60%), linear-gradient(0deg, rgba(252, 244, 228, 0.85), rgba(252, 244, 228, 0.85)); background-size: 100% 100%;">
+    <div class="overflow-hidden supports-[overflow:clip]:overflow-clip">
+        <div class="max-w-[728px] mx-auto">
+            <div class="w-full bg-white dark:bg-gray-900 border-x border-amber-100 dark:border-gray-800 box-content" style="background-image: radial-gradient(circle at 10% 12%, rgba(255,255,255,0.9), transparent 45%), radial-gradient(circle at 85% 18%, rgba(248,248,248,0.9), transparent 48%), radial-gradient(circle at 20% 80%, rgba(250,250,250,0.85), transparent 50%), radial-gradient(circle at 60% 35%, rgba(244,244,244,0.6), transparent 55%), radial-gradient(circle at 40% 60%, rgba(245,245,245,0.55), transparent 58%), linear-gradient(165deg, rgba(236,236,236,0.25), rgba(255,255,255,0) 40%), linear-gradient(6deg, rgba(232,232,232,0.22), rgba(255,255,255,0) 35%), linear-gradient(275deg, rgba(240,240,240,0.18), rgba(255,255,255,0) 45%); background-size: 100% 100%; background-blend-mode: multiply;">
+                <div class="px-6 md:px-16">
+                    <div class="flex flex-col min-h-screen">
+                        <header class="text-center pt-8">
+                            <div class="flex justify-end mb-2">
+                                <div class="inline-flex items-center justify-center ml-auto">
+                                    <input type="checkbox" name="light-switch" id="light-switch" class="light-switch sr-only" />
+                                    <label class="relative cursor-pointer p-2" for="light-switch">
+                                        <svg class="dark:hidden" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path class="fill-gray-300" d="M7 0h2v2H7zM12.88 1.637l1.414 1.415-1.415 1.413-1.413-1.414zM14 7h2v2h-2zM12.95 14.433l-1.414-1.413 1.413-1.415 1.415 1.414zM7 14h2v2H7zM2.98 14.364l-1.413-1.415 1.414-1.414 1.414 1.415zM0 7h2v2H0zM3.05 1.706 4.463 3.12 3.05 4.535 1.636 3.12z"/><path class="fill-gray-400" d="M8 4C5.8 4 4 5.8 4 8s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4Z"/></svg>
+                                        <svg class="hidden dark:block" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path class="fill-gray-500" d="M6.2 1C3.2 1.8 1 4.6 1 7.9 1 11.8 4.2 15 8.1 15c3.3 0 6-2.2 6.9-5.2C9.7 11.2 4.8 6.3 6.2 1Z"/><path class="fill-gray-400" d="M12.5 5a.625.625 0 0 1-.625-.625 1.252 1.252 0 0 0-1.25-1.25.625.625 0 1 1 0-1.25 1.252 1.252 0 0 0 1.25-1.25.625.625 0 1 1 1.25 0c.001.69.56 1.249 1.25 1.25a.625.625 0 1 1 0 1.25c-.69.001-1.249.56-1.25 1.25A.625.625 0 0 1 12.5 5Z"/></svg>
+                                        <span class="sr-only">Switch to light / dark version</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-10">
+                                <img class="inline-flex shadow-lg mb-5 profile-image" src="./images/sharing-homilies.png" width="120" height="120" alt="Sharing Homilies" />
+                                <div class="mb-7">
+                                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/80 mb-2">Dive deeper</p>
+                                    <h1 class="font-inter-tight font-bold text-gray-800 dark:text-gray-100 text-3xl mb-3">General Stats</h1>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Word counts, readability scores, homily length distribution, and coverage across parishes and counties.</p>
+                                </div>
+                                <div class="flex flex-wrap items-center justify-center gap-3">
+                                    <a class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500" href="./dive-deeper.html">All stats</a>
+                                    <a class="btn-sm interactive-btn text-amber-700 dark:text-gray-200 border border-amber-200 dark:border-gray-700 hover:border-amber-300 dark:hover:border-gray-600 shadow-lg shadow-black/25 dark:shadow-black/40 scroll-to-subscribe" href="#subscribe">Get updates</a>
+                                </div>
+                            </div>
+                        </header>
+
+                        <main class="grow py-14 space-y-14">
+                            <section class="space-y-6">
+                                <div class="grid gap-4 md:grid-cols-2">
+                                    <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                        <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Average length</p>
+                                        <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">Average word count</h3>
+                                        <div class="text-3xl font-semibold text-amber-800 dark:text-amber-200" id="avg-word-count">--</div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Across all homilies.</p>
+                                    </div>
+                                    <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                        <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Coverage</p>
+                                        <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">Total homilies</h3>
+                                        <div class="text-3xl font-semibold text-amber-800 dark:text-amber-200" id="total-homilies">--</div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Total entries in the archive.</p>
+                                    </div>
+                                </div>
+                                <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Distribution</p>
+                                    <div class="flex items-start justify-between gap-3 mb-4">
+                                        <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Homilies per county</h3>
+                                        <button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Total homilies recorded per county. Raw volume — larger counties may naturally appear higher.</span></button>
+                                    </div>
+                                    <div class="chart-wrap"><div class="chart-spinner" id="county-count-loading" aria-label="Loading chart"></div><canvas id="county-count-chart" height="160"></canvas></div>
+                                </div>
+                                <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Distribution</p>
+                                    <div class="flex items-start justify-between gap-3 mb-4">
+                                        <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Homilies per church</h3>
+                                        <button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Each bar counts how many homilies are linked to a given church. Reflects archive coverage and availability of recordings.</span></button>
+                                    </div>
+                                    <div class="chart-wrap"><div class="chart-spinner" id="church-count-loading" aria-label="Loading chart"></div><canvas id="church-count-chart" height="160"></canvas></div>
+                                </div>
+                                <div class="grid gap-4 md:grid-cols-2">
+                                    <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                        <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Readability</p>
+                                        <div class="flex items-start justify-between gap-3 mb-4">
+                                            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Average readability per church</h3>
+                                            <button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Average Flesch Reading Ease per church. Higher scores indicate simpler syntax and shorter words.</span></button>
+                                        </div>
+                                        <div class="chart-wrap"><div class="chart-spinner" id="readability-loading" aria-label="Loading chart"></div><canvas id="readability-chart" height="180"></canvas></div>
+                                    </div>
+                                    <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                        <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Lexical diversity</p>
+                                        <div class="flex items-start justify-between gap-3 mb-4">
+                                            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Vocabulary richness by church</h3>
+                                            <button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Type–Token Ratio (TTR): higher values suggest more varied vocabulary. Averaged per church.</span></button>
+                                        </div>
+                                        <div class="chart-wrap"><div class="chart-spinner" id="ttr-loading" aria-label="Loading chart"></div><canvas id="ttr-chart" height="180"></canvas></div>
+                                    </div>
+                                </div>
+                                <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Trends over time</p>
+                                    <div class="flex items-start justify-between gap-3 mb-4">
+                                        <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Readability and grade level over time</h3>
+                                        <button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Monthly averages — Flesch Reading Ease and implied grade level across all homilies.</span></button>
+                                    </div>
+                                    <div class="chart-wrap"><div class="chart-spinner" id="trend-loading" aria-label="Loading chart"></div><canvas id="trend-chart" height="180"></canvas></div>
+                                </div>
+                                <div class="grid gap-4 md:grid-cols-2">
+                                    <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                        <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Length distribution</p>
+                                        <div class="flex items-start justify-between gap-3 mb-4">
+                                            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Ridge plot of homily lengths over time</h3>
+                                            <button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Each ridge shows the distribution of word counts for a month. Wider ridges indicate a broader spread of lengths.</span></button>
+                                        </div>
+                                        <div class="chart-wrap"><div class="chart-spinner" id="ridge-loading" aria-label="Loading chart"></div><canvas id="ridge-plot" class="w-full" height="220"></canvas></div>
+                                    </div>
+                                    <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                        <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Lexical trend</p>
+                                        <div class="flex items-start justify-between gap-3 mb-4">
+                                            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">TTR moving average over time</h3>
+                                            <button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Moving average Type–Token Ratio by month. Higher values indicate more varied vocabulary.</span></button>
+                                        </div>
+                                        <div class="chart-wrap"><div class="chart-spinner" id="ttr-trend-loading" aria-label="Loading chart"></div><canvas id="ttr-trend-chart" height="220"></canvas></div>
+                                    </div>
+                                </div>
+                                <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Word count distribution</p>
+                                    <div class="flex items-start justify-between gap-3 mb-4">
+                                        <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Histogram of homily length</h3>
+                                        <button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Histogram bins show how many homilies fall within each word-count range. The dotted median line marks the typical length.</span></button>
+                                    </div>
+                                    <div class="grid gap-4 md:grid-cols-3 mb-4 text-sm text-gray-600 dark:text-gray-400">
+                                        <div class="rounded-xl bg-white/70 dark:bg-gray-900/60 border border-amber-100/60 dark:border-gray-700/60 p-3"><div class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-1">% under 800 words</div><div class="text-lg font-semibold text-gray-800 dark:text-gray-100" id="under-800">--</div></div>
+                                        <div class="rounded-xl bg-white/70 dark:bg-gray-900/60 border border-amber-100/60 dark:border-gray-700/60 p-3"><div class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-1">% over 2000 words</div><div class="text-lg font-semibold text-gray-800 dark:text-gray-100" id="over-2000">--</div></div>
+                                        <div class="rounded-xl bg-white/70 dark:bg-gray-900/60 border border-amber-100/60 dark:border-gray-700/60 p-3"><div class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-1">Median word count</div><div class="text-lg font-semibold text-gray-800 dark:text-gray-100" id="median-words">--</div></div>
+                                    </div>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-4" id="spoken-length-note">Estimated spoken length: -- minutes (assuming 130 words/minute).</p>
+                                    <div class="chart-wrap"><div class="chart-spinner" id="wordcount-loading" aria-label="Loading chart"></div><canvas id="wordcount-chart" height="200"></canvas></div>
+                                </div>
+                            </section>
+
+                            <section id="subscribe">
+                                <h2 class="font-inter-tight text-lg font-semibold text-gray-800 dark:text-gray-100 mb-6">Stay in the loop</h2>
+                                <div class="p-6 rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                    <form><div class="flex flex-col gap-3 md:flex-row md:items-center md:gap-4"><input class="flex-1 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-600 border border-amber-200 dark:border-gray-700 rounded-lg px-3 py-2 focus:ring-0 focus:outline-hidden" type="email" name="email" aria-label="Enter your email to subscribe" placeholder="Enter your email..." autocomplete="off" /><button type="submit" class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500">Join newsletter</button></div></form>
+                                </div>
+                            </section>
+                        </main>
+
+                        <footer class="space-y-8 text-center pb-16">
+                            <p class="text-sm text-gray-400 dark:text-gray-600">Sharing Homilies &copy; 2026. Built with care for the community.</p>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        const rawApiBase = (document.documentElement.dataset.apiBase || '').trim();
+        const apiBaseLocal = rawApiBase && !rawApiBase.includes('%VITE_') ? rawApiBase : 'http://localhost:5000';
+        const refreshLucide = () => { if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons(); };
+        refreshLucide();
+        const numberFormat = (v) => v == null ? '--' : new Intl.NumberFormat('en-US').format(v);
+        const tidyChurchName = (v) => { if (!v) return 'Unknown'; const p = String(v).split('/').filter(Boolean); return (p.length ? p[p.length - 1] : String(v)).replace(/^./, c => c.toUpperCase()); };
+        const setSpinnerVisible = (id, show) => { const el = document.getElementById(id); if (el) el.style.display = show ? 'flex' : 'none'; };
+        const showChartError = (ids, msg) => { for (const id of ids) { const el = document.getElementById(id); if (!el) continue; el.style.display = 'none'; const w = el.closest('.chart-wrap'); if (!w) continue; const p = document.createElement('p'); p.className = 'text-xs text-gray-400 dark:text-gray-500 text-center py-6'; p.textContent = msg; w.appendChild(p); } };
+        const statsErrorMsg = (err) => err.message === 'HTTP 503' ? 'Stats not yet available — run the batch pipeline first.' : 'Could not load stats.';
+        const tidyLabel = (v) => { if (!v) return 'Unknown'; return String(v).replace(/_/g, ' ').replace(/\s+/g, ' ').trim().replace(/^./, c => c.toUpperCase()); };
+
+        const loadGeneralStats = async () => {
+            try {
+                const resp = await fetch(`${apiBaseLocal}/web/homilies/stats/general`);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                const avgEl = document.getElementById('avg-word-count');
+                const totalEl = document.getElementById('total-homilies');
+                if (avgEl) avgEl.textContent = data.avg_word_count ? numberFormat(Math.round(data.avg_word_count)) : '--';
+                if (totalEl) totalEl.textContent = numberFormat(data.total_homilies);
+
+                const dist = data.word_count_distribution || {};
+                const under800El = document.getElementById('under-800');
+                const over2000El = document.getElementById('over-2000');
+                const medianEl = document.getElementById('median-words');
+                const noteEl = document.getElementById('spoken-length-note');
+                if (under800El) under800El.textContent = dist.percent_under_800 != null ? dist.percent_under_800 + '%' : '--';
+                if (over2000El) over2000El.textContent = dist.percent_over_2000 != null ? dist.percent_over_2000 + '%' : '--';
+                if (medianEl) medianEl.textContent = dist.median ? numberFormat(Math.round(dist.median)) : '--';
+                if (noteEl && dist.median) noteEl.textContent = `Estimated spoken length: ${Math.round(dist.median / 130)} minutes (assuming 130 words/minute).`;
+
+                const countyData = (data.homilies_per_county || []).slice(0, 20);
+                const countyCtx = document.getElementById('county-count-chart');
+                if (countyCtx && countyData.length) {
+                    new Chart(countyCtx, { type: 'bar', data: { labels: countyData.map(c => tidyLabel(c.county)), datasets: [{ label: 'Homilies', data: countyData.map(c => c.count), backgroundColor: 'rgba(180, 120, 30, 0.55)', borderColor: 'rgba(140, 90, 20, 0.85)', borderWidth: 1, borderRadius: 6 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+                }
+                setSpinnerVisible('county-count-loading', false);
+
+                const churchData = (data.homilies_per_church || []).slice(0, 20);
+                const churchCtx = document.getElementById('church-count-chart');
+                if (churchCtx && churchData.length) {
+                    new Chart(churchCtx, { type: 'bar', data: { labels: churchData.map(c => tidyChurchName(c.church)), datasets: [{ label: 'Homilies', data: churchData.map(c => c.count), backgroundColor: 'rgba(120, 70, 10, 0.5)', borderRadius: 6 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+                }
+                setSpinnerVisible('church-count-loading', false);
+
+                const histogram = dist.histogram || [];
+                const histCtx = document.getElementById('wordcount-chart');
+                if (histCtx && histogram.length) {
+                    const findBin = (val) => val != null ? histogram.find(b => val >= b.start && val < b.end) : null;
+                    const mkLabel = (b) => b ? `${b.start}–${b.end}` : null;
+                    const annotations = {};
+                    const mBin = findBin(dist.median); if (mBin) annotations.median = { type: 'line', xMin: mkLabel(mBin), xMax: mkLabel(mBin), borderColor: 'rgba(120,70,10,0.9)', borderWidth: 2, label: { content: `Median: ${Math.round(dist.median)}`, display: true, font: { size: 10 }, color: 'rgba(120,70,10,0.95)', backgroundColor: 'rgba(255,248,235,0.92)', position: 'end', padding: { x: 5, y: 3 } } };
+                    const p25Bin = findBin(dist.p25); if (p25Bin) annotations.p25 = { type: 'line', xMin: mkLabel(p25Bin), xMax: mkLabel(p25Bin), borderColor: 'rgba(180,120,30,0.55)', borderWidth: 1, borderDash: [4, 4] };
+                    const p75Bin = findBin(dist.p75); if (p75Bin) annotations.p75 = { type: 'line', xMin: mkLabel(p75Bin), xMax: mkLabel(p75Bin), borderColor: 'rgba(180,120,30,0.55)', borderWidth: 1, borderDash: [4, 4] };
+                    new Chart(histCtx, { type: 'bar', data: { labels: histogram.map(b => `${b.start}–${b.end}`), datasets: [{ label: 'Homilies', data: histogram.map(b => b.count), backgroundColor: 'rgba(180, 120, 30, 0.55)', borderRadius: 4 }] }, options: { responsive: true, plugins: { legend: { display: false }, annotation: { annotations } }, scales: { y: { beginAtZero: true } } } });
+                }
+                setSpinnerVisible('wordcount-loading', false);
+            } catch (err) {
+                setSpinnerVisible('county-count-loading', false);
+                setSpinnerVisible('church-count-loading', false);
+                setSpinnerVisible('wordcount-loading', false);
+                showChartError(['county-count-chart', 'church-count-chart', 'wordcount-chart'], statsErrorMsg(err));
+            }
+        };
+
+        const loadLinguisticsStats = async () => {
+            try {
+                const resp = await fetch(`${apiBaseLocal}/web/homilies/stats/linguistics`);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+
+                const readByChurch = (data.readability?.avg_by_church || []).slice(0, 15);
+                const readCtx = document.getElementById('readability-chart');
+                if (readCtx && readByChurch.length) {
+                    new Chart(readCtx, { type: 'bar', data: { labels: readByChurch.map(c => tidyChurchName(c.church)), datasets: [{ label: 'Flesch Reading Ease', data: readByChurch.map(c => c.flesch_reading_ease), backgroundColor: 'rgba(180, 120, 30, 0.55)', borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } } });
+                }
+                setSpinnerVisible('readability-loading', false);
+
+                const ttrByChurch = (data.lexical_diversity?.avg_by_church || []).slice(0, 15);
+                const ttrCtx = document.getElementById('ttr-chart');
+                if (ttrCtx && ttrByChurch.length) {
+                    new Chart(ttrCtx, { type: 'bar', data: { labels: ttrByChurch.map(c => tidyChurchName(c.church)), datasets: [{ label: 'TTR', data: ttrByChurch.map(c => c.ttr), backgroundColor: 'rgba(120, 70, 10, 0.6)', borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, max: 1 } } } });
+                }
+                setSpinnerVisible('ttr-loading', false);
+
+                const easeTrend = (data.readability?.trend || []).filter(t => t.value != null);
+                const gradeTrend = (data.readability?.grade_trend || []).filter(t => t.value != null && easeTrend.some(e => e.month === t.month));
+                const trendCtx = document.getElementById('trend-chart');
+                if (trendCtx && easeTrend.length) {
+                    const gradeByMonth = Object.fromEntries(gradeTrend.map(t => [t.month, t.value]));
+                    new Chart(trendCtx, { type: 'line', data: { labels: easeTrend.map(t => t.month), datasets: [{ label: 'Readability (Flesch)', data: easeTrend.map(t => t.value), borderColor: 'rgba(180, 120, 30, 0.85)', backgroundColor: 'rgba(180, 120, 30, 0.1)', tension: 0.4, fill: false, yAxisID: 'y' }, { label: 'Grade level', data: easeTrend.map(t => gradeByMonth[t.month] ?? null), borderColor: 'rgba(99, 102, 241, 0.85)', backgroundColor: 'rgba(99, 102, 241, 0.1)', tension: 0.4, fill: false, yAxisID: 'y1', spanGaps: true }] }, options: { responsive: true, plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } }, scales: { y: { beginAtZero: false, position: 'left' }, y1: { beginAtZero: false, position: 'right', grid: { drawOnChartArea: false } } } } });
+                }
+                setSpinnerVisible('trend-loading', false);
+
+                const ttrTrend = (data.lexical_diversity?.trend || []).filter(t => t.moving_avg != null);
+                const ttrTrendCtx = document.getElementById('ttr-trend-chart');
+                if (ttrTrendCtx && ttrTrend.length) {
+                    new Chart(ttrTrendCtx, { type: 'line', data: { labels: ttrTrend.map(t => t.month), datasets: [{ label: 'TTR (moving avg)', data: ttrTrend.map(t => t.moving_avg), borderColor: 'rgba(120, 70, 10, 0.85)', backgroundColor: 'rgba(120, 70, 10, 0.1)', tension: 0.4, fill: true, pointRadius: 3 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } } } });
+                }
+                setSpinnerVisible('ttr-trend-loading', false);
+            } catch (err) {
+                setSpinnerVisible('readability-loading', false);
+                setSpinnerVisible('ttr-loading', false);
+                setSpinnerVisible('trend-loading', false);
+                setSpinnerVisible('ttr-trend-loading', false);
+                showChartError(['readability-chart', 'ttr-chart', 'trend-chart', 'ttr-trend-chart'], statsErrorMsg(err));
+            }
+        };
+
+        const loadRidgeStats = async () => {
+            try {
+                const resp = await fetch(`${apiBaseLocal}/web/homilies/stats/ridge`);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                const allMonths = data.months || [];
+                const allDensities = data.densities || [];
+                const ctx = document.getElementById('ridge-plot');
+                if (ctx && allMonths.length && allDensities.length) {
+                    const validIdxs = allMonths.reduce((acc, _, i) => { if (allDensities[i] && allDensities[i].some(v => v > 0)) acc.push(i); return acc; }, []);
+                    const months = validIdxs.map(i => allMonths[i]);
+                    const densities = validIdxs.map(i => allDensities[i]);
+                    if (months.length && densities.length) {
+                        const step = Math.max(1, Math.round((data.max - data.min) / (data.bins || 12)));
+                        const binLabels = densities[0].map((_, i) => `${data.min + i * step}`);
+                        const colors = months.map((_, i) => `hsla(${30 + i * (40 / Math.max(months.length - 1, 1))}, 70%, ${45 + i * (15 / Math.max(months.length - 1, 1))}%, 0.45)`);
+                        new Chart(ctx, { type: 'line', data: { labels: binLabels, datasets: months.map((m, i) => ({ label: m, data: densities[i], borderColor: colors[i], backgroundColor: colors[i].replace('0.45', '0.15'), tension: 0.4, fill: true, pointRadius: 0 })) }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { display: false } }, x: { ticks: { maxTicksLimit: 6 } } } } });
+                    }
+                }
+                setSpinnerVisible('ridge-loading', false);
+            } catch (err) {
+                setSpinnerVisible('ridge-loading', false);
+                showChartError(['ridge-plot'], statsErrorMsg(err));
+            }
+        };
+
+        loadGeneralStats();
+        loadLinguisticsStats();
+        loadRidgeStats();
+
+        document.querySelectorAll('[data-tooltip]').forEach((t) => {
+            t.addEventListener('click', (e) => { e.stopPropagation(); const open = t.classList.contains('tooltip-open'); document.querySelectorAll('[data-tooltip]').forEach((el) => el.classList.remove('tooltip-open')); if (!open) t.classList.add('tooltip-open'); });
+        });
+        document.addEventListener('click', () => { document.querySelectorAll('[data-tooltip]').forEach((el) => el.classList.remove('tooltip-open')); });
+    </script>
+</body>
+</html>

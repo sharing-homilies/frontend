@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-api-base="%VITE_API_BASE%">
+<head>
+    <meta charset="utf-8">
+    <title>Themes - Sharing Homilies</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="icon" href="./images/sharing-homilies.png">
+    <link href="/style.css" rel="stylesheet">
+    <style>
+        .interactive-btn { transition: transform 0.2s ease-out; } .interactive-btn:hover { transform: scale(1.03); } .interactive-btn:active { transform: scale(0.98); }
+        .profile-image { position: relative; border-radius: 50%; }
+        .profile-image::before { content: ''; position: absolute; top: -3px; left: -3px; width: calc(100% + 6px); height: calc(100% + 6px); border-radius: 50%; background: conic-gradient(from 0deg at 50% 50%, rgb(245 158 11) 0deg, rgb(245 158 11) 180deg, transparent 180deg, transparent 360deg); z-index: 1; pointer-events: none; clip-path: inset(0 0 50% 0); }
+        .info-tooltip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 9999px; border: none; background: rgba(255, 245, 225, 0.95); color: rgba(120, 70, 10, 1); cursor: pointer; box-shadow: 0 3px 8px rgba(120, 70, 10, 0.12); }
+        .info-tooltip span { position: absolute; right: 0; top: 120%; min-width: 260px; max-width: 320px; padding: 0.6rem 0.8rem; border-radius: 12px; background: rgba(255, 248, 235, 0.98); color: rgba(120, 70, 10, 0.95); font-size: 12px; line-height: 1.5; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 30; box-shadow: 0 12px 24px rgba(120, 70, 10, 0.18); border: 1px solid rgba(180, 120, 30, 0.35); }
+        .info-tooltip.tooltip-open span { opacity: 1; transform: translateY(0); }
+        @media (hover: hover) { .info-tooltip:hover span { opacity: 1; transform: translateY(0); } }
+        .chart-wrap { position: relative; min-height: 160px; }
+        .chart-spinner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255, 252, 244, 0.6); border-radius: 12px; }
+        .chart-spinner::before { content: ''; width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(180, 120, 30, 0.3); border-top-color: rgba(120, 70, 10, 0.7); animation: spin 0.9s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+    <script>if (localStorage.getItem('dark-mode') === 'false' || !('dark-mode' in localStorage)) { document.querySelector('html').classList.remove('dark'); } else { document.querySelector('html').classList.add('dark'); }</script>
+</head>
+<body class="font-inter antialiased bg-amber-50 text-gray-800 dark:bg-gray-950 dark:text-gray-100 tracking-tight" style="background-image: radial-gradient(circle at 18% 20%, rgba(245, 232, 204, 0.9), transparent 62%), radial-gradient(circle at 82% 14%, rgba(250, 236, 210, 0.85), transparent 58%), radial-gradient(circle at 35% 78%, rgba(238, 222, 191, 0.75), transparent 64%), radial-gradient(circle at 70% 70%, rgba(232, 214, 182, 0.7), transparent 60%), linear-gradient(0deg, rgba(252, 244, 228, 0.85), rgba(252, 244, 228, 0.85)); background-size: 100% 100%;">
+    <div class="overflow-hidden supports-[overflow:clip]:overflow-clip"><div class="max-w-[728px] mx-auto"><div class="w-full bg-white dark:bg-gray-900 border-x border-amber-100 dark:border-gray-800 box-content" style="background-image: radial-gradient(circle at 10% 12%, rgba(255,255,255,0.9), transparent 45%), radial-gradient(circle at 85% 18%, rgba(248,248,248,0.9), transparent 48%), linear-gradient(165deg, rgba(236,236,236,0.25), rgba(255,255,255,0) 40%); background-size: 100% 100%; background-blend-mode: multiply;"><div class="px-6 md:px-16"><div class="flex flex-col min-h-screen">
+        <header class="text-center pt-8">
+            <div class="flex justify-end mb-2"><div class="inline-flex items-center justify-center ml-auto"><input type="checkbox" name="light-switch" id="light-switch" class="light-switch sr-only" /><label class="relative cursor-pointer p-2" for="light-switch"><svg class="dark:hidden" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path class="fill-gray-300" d="M7 0h2v2H7zM12.88 1.637l1.414 1.415-1.415 1.413-1.413-1.414zM14 7h2v2h-2zM12.95 14.433l-1.414-1.413 1.413-1.415 1.415 1.414zM7 14h2v2H7zM2.98 14.364l-1.413-1.415 1.414-1.414 1.414 1.415zM0 7h2v2H0zM3.05 1.706 4.463 3.12 3.05 4.535 1.636 3.12z"/><path class="fill-gray-400" d="M8 4C5.8 4 4 5.8 4 8s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4Z"/></svg><svg class="hidden dark:block" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path class="fill-gray-500" d="M6.2 1C3.2 1.8 1 4.6 1 7.9 1 11.8 4.2 15 8.1 15c3.3 0 6-2.2 6.9-5.2C9.7 11.2 4.8 6.3 6.2 1Z"/><path class="fill-gray-400" d="M12.5 5a.625.625 0 0 1-.625-.625 1.252 1.252 0 0 0-1.25-1.25.625.625 0 1 1 0-1.25 1.252 1.252 0 0 0 1.25-1.25.625.625 0 1 1 1.25 0c.001.69.56 1.249 1.25 1.25a.625.625 0 1 1 0 1.25c-.69.001-1.249.56-1.25 1.25A.625.625 0 0 1 12.5 5Z"/></svg><span class="sr-only">Switch to light / dark version</span></label></div></div>
+            <div class="mb-10">
+                <img class="inline-flex shadow-lg mb-5 profile-image" src="./images/sharing-homilies.png" width="120" height="120" alt="Sharing Homilies" />
+                <div class="mb-7"><p class="text-xs uppercase tracking-[0.2em] text-amber-700/80 mb-2">Dive deeper</p><h1 class="font-inter-tight font-bold text-gray-800 dark:text-gray-100 text-3xl mb-3">Themes</h1><p class="text-sm text-gray-600 dark:text-gray-400">The theological themes woven through the archive, their frequency, co-occurrence, and geographic spread.</p></div>
+                <div class="flex flex-wrap items-center justify-center gap-3"><a class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500" href="./dive-deeper.html">All stats</a><a class="btn-sm interactive-btn text-amber-700 dark:text-gray-200 border border-amber-200 dark:border-gray-700 hover:border-amber-300 dark:hover:border-gray-600 shadow-lg shadow-black/25 dark:shadow-black/40 scroll-to-subscribe" href="#subscribe">Get updates</a></div>
+            </div>
+        </header>
+        <main class="grow py-14 space-y-14">
+            <section class="space-y-6">
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                        <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Themes</p>
+                        <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Top theological themes</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>The most frequently tagged theological themes across all homilies in the archive.</span></button></div>
+                        <div class="chart-wrap"><div class="chart-spinner" id="themes-top-loading" aria-label="Loading chart"></div><canvas id="themes-top-chart" height="220"></canvas></div>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                        <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Emotions</p>
+                        <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Emotional tone distribution</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>How homilies are tagged by emotional tone — hope, grief, joy, solemnity, and others.</span></button></div>
+                        <div class="chart-wrap"><div class="chart-spinner" id="themes-emotion-loading" aria-label="Loading chart"></div><canvas id="themes-emotion-chart" height="220"></canvas></div>
+                    </div>
+                </div>
+                <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Trend</p>
+                    <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Top themes over time</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Monthly stacked trend showing how the top theological themes rise and fall through the year.</span></button></div>
+                    <div class="chart-wrap"><div class="chart-spinner" id="themes-trend-loading" aria-label="Loading chart"></div><canvas id="themes-trend-chart" height="180"></canvas></div>
+                </div>
+                <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Geography</p>
+                    <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Top themes by county</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>The three most common themes per county, revealing regional theological emphases.</span></button></div>
+                    <div class="chart-wrap"><div class="chart-spinner" id="themes-county-loading" aria-label="Loading chart"></div><canvas id="themes-county-chart" height="200"></canvas></div>
+                </div>
+                <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Temporal focus</p>
+                    <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Past, present, and future emphasis</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Whether homilies focus on past events (tradition, scripture), present circumstances, or future hope.</span></button></div>
+                    <div class="chart-wrap"><div class="chart-spinner" id="themes-temporal-loading" aria-label="Loading chart"></div><canvas id="themes-temporal-chart" height="140"></canvas></div>
+                </div>
+            </section>
+            <section id="subscribe"><h2 class="font-inter-tight text-lg font-semibold text-gray-800 dark:text-gray-100 mb-6">Stay in the loop</h2><div class="p-6 rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80"><form><div class="flex flex-col gap-3 md:flex-row md:items-center md:gap-4"><input class="flex-1 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-600 border border-amber-200 dark:border-gray-700 rounded-lg px-3 py-2 focus:ring-0 focus:outline-hidden" type="email" name="email" placeholder="Enter your email..." autocomplete="off" /><button type="submit" class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500">Join newsletter</button></div></form></div></section>
+        </main>
+        <footer class="space-y-8 text-center pb-16"><p class="text-sm text-gray-400 dark:text-gray-600">Sharing Homilies &copy; 2026. Built with care for the community.</p></footer>
+    </div></div></div></div></div>
+
+    <script type="module" src="./js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        const rawApiBase = (document.documentElement.dataset.apiBase || '').trim();
+        const apiBaseLocal = rawApiBase && !rawApiBase.includes('%VITE_') ? rawApiBase : 'http://localhost:5000';
+        const refreshLucide = () => { if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons(); };
+        refreshLucide();
+        const tidyLabel = (v) => { if (!v) return 'Unknown'; return String(v).replace(/_/g, ' ').replace(/\s+/g, ' ').trim().replace(/^./, c => c.toUpperCase()); };
+        const setSpinnerVisible = (id, show) => { const el = document.getElementById(id); if (el) el.style.display = show ? 'flex' : 'none'; };
+        const showChartError = (ids, msg) => { for (const id of ids) { const el = document.getElementById(id); if (!el) continue; el.style.display = 'none'; const w = el.closest('.chart-wrap'); if (!w) continue; const p = document.createElement('p'); p.className = 'text-xs text-gray-400 dark:text-gray-500 text-center py-6'; p.textContent = msg; w.appendChild(p); } };
+        const statsErrorMsg = (err) => err.message === 'HTTP 503' ? 'Stats not yet available — run the batch pipeline first.' : 'Could not load stats.';
+        const TAG_COLORS = ['rgba(180,120,30,0.6)','rgba(120,70,10,0.6)','rgba(99,102,241,0.6)','rgba(16,185,129,0.6)','rgba(239,68,68,0.6)','rgba(139,92,246,0.6)','rgba(245,158,11,0.6)','rgba(20,184,166,0.6)'];
+
+        const loadThemesStats = async () => {
+            try {
+                const resp = await fetch(`${apiBaseLocal}/web/homilies/stats/themes`);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+
+                const topThemes = (data.top_themes || []).slice(0, 12);
+                const topCtx = document.getElementById('themes-top-chart');
+                if (topCtx && topThemes.length) {
+                    new Chart(topCtx, { type: 'bar', data: { labels: topThemes.map(t => tidyLabel(t.theme)), datasets: [{ label: 'Count', data: topThemes.map(t => t.count), backgroundColor: 'rgba(180,120,30,0.55)', borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } } });
+                }
+                setSpinnerVisible('themes-top-loading', false);
+
+                const emotions = (data.top_emotions || []).slice(0, 10);
+                const emotCtx = document.getElementById('themes-emotion-chart');
+                if (emotCtx && emotions.length) {
+                    new Chart(emotCtx, { type: 'doughnut', data: { labels: emotions.map(e => tidyLabel(e.emotion)), datasets: [{ data: emotions.map(e => e.count), backgroundColor: emotions.map((_, i) => TAG_COLORS[i % TAG_COLORS.length]), borderWidth: 2 }] }, options: { responsive: true, plugins: { legend: { position: 'right', labels: { font: { size: 10 } } } } } });
+                }
+                setSpinnerVisible('themes-emotion-loading', false);
+
+                const trend = data.theme_trend || {};
+                const trendCtx = document.getElementById('themes-trend-chart');
+                if (trendCtx && trend.months?.length && (trend.themes || []).length) {
+                    const themes = trend.themes || [];
+                    const rows = trend.data || [];
+                    const validIdxs = trend.months.reduce((acc, _, i) => { const row = rows[i]; const tot = themes.reduce((s, t) => s + (row?.counts?.[t] || 0), 0); if (tot > 0) acc.push(i); return acc; }, []);
+                    const pctMonths = validIdxs.map(i => trend.months[i]);
+                    const pctDatasets = themes.map((t, ti) => ({ label: tidyLabel(t), data: validIdxs.map(i => { const row = rows[i]; const tot = themes.reduce((s, th) => s + (row?.counts?.[th] || 0), 0); return tot > 0 ? Math.round((row?.counts?.[t] || 0) / tot * 100) : 0; }), borderColor: TAG_COLORS[ti % TAG_COLORS.length], backgroundColor: TAG_COLORS[ti % TAG_COLORS.length].replace('0.6', '0.1'), tension: 0.4, fill: false, pointRadius: 2 }));
+                    new Chart(trendCtx, { type: 'line', data: { labels: pctMonths, datasets: pctDatasets }, options: { responsive: true, plugins: { legend: { position: 'top', labels: { font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw}%` } } }, scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } } } });
+                }
+                setSpinnerVisible('themes-trend-loading', false);
+
+                const byCounty = (data.themes_by_county || []).slice(0, 20);
+                const countyCanvas = document.getElementById('themes-county-chart');
+                setSpinnerVisible('themes-county-loading', false);
+                if (countyCanvas && byCounty.length) {
+                    countyCanvas.style.display = 'none';
+                    const wrap = countyCanvas.closest('.chart-wrap');
+                    if (wrap) {
+                        wrap.style.minHeight = 'auto';
+                        const list = document.createElement('div');
+                        list.className = 'space-y-1.5 py-1';
+                        byCounty.forEach(c => {
+                            const topTwo = (c.top_themes || []).slice(0, 2).map(t => tidyLabel(t.theme));
+                            const row = document.createElement('div');
+                            row.className = 'flex items-center gap-2 py-1.5 border-b border-amber-100/50 dark:border-gray-700/40 last:border-0';
+                            row.innerHTML = `<span class="flex-1 text-xs text-gray-700 dark:text-gray-300 truncate font-medium">${tidyLabel(c.county)}</span>${topTwo.map(th => `<span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200/50 shrink-0">${th}</span>`).join('')}`;
+                            list.appendChild(row);
+                        });
+                        wrap.appendChild(list);
+                    }
+                }
+
+                const temporal = (data.temporal_focus || []).slice(0, 6);
+                const tempCtx = document.getElementById('themes-temporal-chart');
+                if (tempCtx && temporal.length) {
+                    new Chart(tempCtx, { type: 'bar', data: { labels: temporal.map(t => tidyLabel(t.focus)), datasets: [{ label: 'Homilies', data: temporal.map(t => t.count), backgroundColor: temporal.map((_, i) => TAG_COLORS[i % TAG_COLORS.length]), borderRadius: 4 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+                }
+                setSpinnerVisible('themes-temporal-loading', false);
+            } catch (err) {
+                ['themes-top-loading','themes-emotion-loading','themes-trend-loading','themes-county-loading','themes-temporal-loading'].forEach(id => setSpinnerVisible(id, false));
+                showChartError(['themes-top-chart','themes-emotion-chart','themes-trend-chart','themes-county-chart','themes-temporal-chart'], statsErrorMsg(err));
+            }
+        };
+
+        loadThemesStats();
+        document.querySelectorAll('[data-tooltip]').forEach((t) => { t.addEventListener('click', (e) => { e.stopPropagation(); const open = t.classList.contains('tooltip-open'); document.querySelectorAll('[data-tooltip]').forEach((el) => el.classList.remove('tooltip-open')); if (!open) t.classList.add('tooltip-open'); }); });
+        document.addEventListener('click', () => { document.querySelectorAll('[data-tooltip]').forEach((el) => el.classList.remove('tooltip-open')); });
+    </script>
+</body>
+</html>

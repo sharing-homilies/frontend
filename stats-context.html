@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-api-base="%VITE_API_BASE%">
+<head>
+    <meta charset="utf-8">
+    <title>Context - Sharing Homilies</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="icon" href="./images/sharing-homilies.png">
+    <link href="/style.css" rel="stylesheet">
+    <style>
+        .interactive-btn { transition: transform 0.2s ease-out; } .interactive-btn:hover { transform: scale(1.03); } .interactive-btn:active { transform: scale(0.98); }
+        .profile-image { position: relative; border-radius: 50%; }
+        .profile-image::before { content: ''; position: absolute; top: -3px; left: -3px; width: calc(100% + 6px); height: calc(100% + 6px); border-radius: 50%; background: conic-gradient(from 0deg at 50% 50%, rgb(245 158 11) 0deg, rgb(245 158 11) 180deg, transparent 180deg, transparent 360deg); z-index: 1; pointer-events: none; clip-path: inset(0 0 50% 0); }
+        .info-tooltip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 9999px; border: none; background: rgba(255, 245, 225, 0.95); color: rgba(120, 70, 10, 1); cursor: pointer; box-shadow: 0 3px 8px rgba(120, 70, 10, 0.12); }
+        .info-tooltip span { position: absolute; right: 0; top: 120%; min-width: 260px; max-width: 320px; padding: 0.6rem 0.8rem; border-radius: 12px; background: rgba(255, 248, 235, 0.98); color: rgba(120, 70, 10, 0.95); font-size: 12px; line-height: 1.5; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 30; box-shadow: 0 12px 24px rgba(120, 70, 10, 0.18); border: 1px solid rgba(180, 120, 30, 0.35); }
+        .info-tooltip.tooltip-open span { opacity: 1; transform: translateY(0); }
+        @media (hover: hover) { .info-tooltip:hover span { opacity: 1; transform: translateY(0); } }
+        .chart-wrap { position: relative; min-height: 160px; }
+        .chart-spinner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255, 252, 244, 0.6); border-radius: 12px; }
+        .chart-spinner::before { content: ''; width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(180, 120, 30, 0.3); border-top-color: rgba(120, 70, 10, 0.7); animation: spin 0.9s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+    <script>if (localStorage.getItem('dark-mode') === 'false' || !('dark-mode' in localStorage)) { document.querySelector('html').classList.remove('dark'); } else { document.querySelector('html').classList.add('dark'); }</script>
+</head>
+<body class="font-inter antialiased bg-amber-50 text-gray-800 dark:bg-gray-950 dark:text-gray-100 tracking-tight" style="background-image: radial-gradient(circle at 18% 20%, rgba(245, 232, 204, 0.9), transparent 62%), radial-gradient(circle at 82% 14%, rgba(250, 236, 210, 0.85), transparent 58%), radial-gradient(circle at 35% 78%, rgba(238, 222, 191, 0.75), transparent 64%), radial-gradient(circle at 70% 70%, rgba(232, 214, 182, 0.7), transparent 60%), linear-gradient(0deg, rgba(252, 244, 228, 0.85), rgba(252, 244, 228, 0.85)); background-size: 100% 100%;">
+    <div class="overflow-hidden supports-[overflow:clip]:overflow-clip"><div class="max-w-[728px] mx-auto"><div class="w-full bg-white dark:bg-gray-900 border-x border-amber-100 dark:border-gray-800 box-content" style="background-image: radial-gradient(circle at 10% 12%, rgba(255,255,255,0.9), transparent 45%), linear-gradient(165deg, rgba(236,236,236,0.25), rgba(255,255,255,0) 40%); background-size: 100% 100%; background-blend-mode: multiply;"><div class="px-6 md:px-16"><div class="flex flex-col min-h-screen">
+        <header class="text-center pt-8">
+            <div class="flex justify-end mb-2"><div class="inline-flex items-center justify-center ml-auto"><input type="checkbox" name="light-switch" id="light-switch" class="light-switch sr-only" /><label class="relative cursor-pointer p-2" for="light-switch"><svg class="dark:hidden" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path class="fill-gray-300" d="M7 0h2v2H7zM12.88 1.637l1.414 1.415-1.415 1.413-1.413-1.414zM14 7h2v2h-2zM12.95 14.433l-1.414-1.413 1.413-1.415 1.415 1.414zM7 14h2v2H7zM2.98 14.364l-1.413-1.415 1.414-1.414 1.414 1.415zM0 7h2v2H0zM3.05 1.706 4.463 3.12 3.05 4.535 1.636 3.12z"/><path class="fill-gray-400" d="M8 4C5.8 4 4 5.8 4 8s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4Z"/></svg><svg class="hidden dark:block" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path class="fill-gray-500" d="M6.2 1C3.2 1.8 1 4.6 1 7.9 1 11.8 4.2 15 8.1 15c3.3 0 6-2.2 6.9-5.2C9.7 11.2 4.8 6.3 6.2 1Z"/><path class="fill-gray-400" d="M12.5 5a.625.625 0 0 1-.625-.625 1.252 1.252 0 0 0-1.25-1.25.625.625 0 1 1 0-1.25 1.252 1.252 0 0 0 1.25-1.25.625.625 0 1 1 1.25 0c.001.69.56 1.249 1.25 1.25a.625.625 0 1 1 0 1.25c-.69.001-1.249.56-1.25 1.25A.625.625 0 0 1 12.5 5Z"/></svg><span class="sr-only">Switch to light / dark version</span></label></div></div>
+            <div class="mb-10">
+                <img class="inline-flex shadow-lg mb-5 profile-image" src="./images/sharing-homilies.png" width="120" height="120" alt="Sharing Homilies" />
+                <div class="mb-7"><p class="text-xs uppercase tracking-[0.2em] text-amber-700/80 mb-2">Dive deeper</p><h1 class="font-inter-tight font-bold text-gray-800 dark:text-gray-100 text-3xl mb-3">Context</h1><p class="text-sm text-gray-600 dark:text-gray-400">Liturgical season distribution, inculturalisation scores, and how well hymn choices align with the liturgical calendar.</p></div>
+                <div class="flex flex-wrap items-center justify-center gap-3"><a class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500" href="./dive-deeper.html">All stats</a><a class="btn-sm interactive-btn text-amber-700 dark:text-gray-200 border border-amber-200 dark:border-gray-700 hover:border-amber-300 dark:hover:border-gray-600 shadow-lg shadow-black/25 dark:shadow-black/40 scroll-to-subscribe" href="#subscribe">Get updates</a></div>
+            </div>
+        </header>
+        <main class="grow py-14 space-y-14">
+            <section class="space-y-6">
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80"><p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Inculturalisation</p><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">Average local score</h3><div class="text-3xl font-semibold text-amber-800 dark:text-amber-200" id="avg-inculturation">--</div><p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Out of 5 across the corpus.</p></div>
+                    <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80"><p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Liturgical</p><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">Most common season</h3><div class="text-xl font-semibold text-amber-800 dark:text-amber-200 leading-snug" id="top-season">--</div></div>
+                </div>
+                <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Liturgical year</p>
+                    <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Season distribution</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>How homilies are distributed across the liturgical year — Advent, Christmas, Lent, Holy Week, Easter, and Ordinary Time.</span></button></div>
+                    <div class="chart-wrap"><div class="chart-spinner" id="season-dist-loading" aria-label="Loading chart"></div><canvas id="season-dist-chart" height="130"></canvas></div>
+                </div>
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                        <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Inculturalisation</p>
+                        <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Score distribution</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>How homilies score on local groundedness (0 = entirely generic, 5 = deeply embedded in local Irish life).</span></button></div>
+                        <div class="chart-wrap"><div class="chart-spinner" id="incult-dist-loading" aria-label="Loading chart"></div><canvas id="incult-dist-chart" height="200"></canvas></div>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                        <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Geography</p>
+                        <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Avg inculturalisation by county</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Average local-groundedness score per county.</span></button></div>
+                        <div class="chart-wrap"><div class="chart-spinner" id="incult-county-loading" aria-label="Loading chart"></div><canvas id="incult-county-chart" height="200"></canvas></div>
+                    </div>
+                </div>
+                <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Inculturalisation</p>
+                    <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Most mentioned places</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Irish place names mentioned most frequently within homily texts.</span></button></div>
+                    <div class="chart-wrap"><div class="chart-spinner" id="places-loading" aria-label="Loading chart"></div><canvas id="places-chart" height="200"></canvas></div>
+                </div>
+                <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Liturgical alignment</p>
+                    <div class="flex items-start justify-between gap-3 mb-4">
+                        <div><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Hymn–season alignment by county</h3><p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Overall: <span id="alignment-overall" class="font-semibold text-amber-800 dark:text-amber-300">--</span>% of homilies have at least one hymn matching their liturgical season</p></div>
+                        <button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Percentage of homilies (per county) where at least one matched hymn is associated with the homily's liturgical season — a measure of musical intentionality.</span></button>
+                    </div>
+                    <div class="chart-wrap"><div class="chart-spinner" id="alignment-loading" aria-label="Loading chart"></div><canvas id="alignment-chart" height="220"></canvas></div>
+                </div>
+            </section>
+            <section id="subscribe"><h2 class="font-inter-tight text-lg font-semibold text-gray-800 dark:text-gray-100 mb-6">Stay in the loop</h2><div class="p-6 rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80"><form><div class="flex flex-col gap-3 md:flex-row md:items-center md:gap-4"><input class="flex-1 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-600 border border-amber-200 dark:border-gray-700 rounded-lg px-3 py-2 focus:ring-0 focus:outline-hidden" type="email" name="email" placeholder="Enter your email..." autocomplete="off" /><button type="submit" class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500">Join newsletter</button></div></form></div></section>
+        </main>
+        <footer class="space-y-8 text-center pb-16"><p class="text-sm text-gray-400 dark:text-gray-600">Sharing Homilies &copy; 2026. Built with care for the community.</p></footer>
+    </div></div></div></div></div>
+
+    <script type="module" src="./js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        const rawApiBase = (document.documentElement.dataset.apiBase || '').trim();
+        const apiBaseLocal = rawApiBase && !rawApiBase.includes('%VITE_') ? rawApiBase : 'http://localhost:5000';
+        const refreshLucide = () => { if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons(); };
+        refreshLucide();
+        const tidyLabel = (v) => { if (!v) return 'Unknown'; return String(v).replace(/_/g, ' ').replace(/\s+/g, ' ').trim().replace(/^./, c => c.toUpperCase()); };
+        const setSpinnerVisible = (id, show) => { const el = document.getElementById(id); if (el) el.style.display = show ? 'flex' : 'none'; };
+        const showChartError = (ids, msg) => { for (const id of ids) { const el = document.getElementById(id); if (!el) continue; el.style.display = 'none'; const w = el.closest('.chart-wrap'); if (!w) continue; const p = document.createElement('p'); p.className = 'text-xs text-gray-400 dark:text-gray-500 text-center py-6'; p.textContent = msg; w.appendChild(p); } };
+        const statsErrorMsg = (err) => err.message === 'HTTP 503' ? 'Stats not yet available — run the batch pipeline first.' : 'Could not load stats.';
+        const SEASON_COLORS = { 'Advent': '#6366f1', 'Christmas': '#f59e0b', 'Lent': '#8b5cf6', 'Holy Week': '#ef4444', 'Easter': '#10b981', 'Ordinary Time': '#64748b', 'Unknown': '#d1d5db' };
+
+        const loadLiturgicalStats = async () => {
+            try {
+                const resp = await fetch(`${apiBaseLocal}/web/homilies/stats/liturgical`);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                const seasons = data.season_distribution || [];
+                const topSeason = seasons[0];
+                const topSeasonEl = document.getElementById('top-season');
+                if (topSeasonEl && topSeason) topSeasonEl.textContent = topSeason.season;
+                const ctx = document.getElementById('season-dist-chart');
+                if (ctx && seasons.length) {
+                    new Chart(ctx, { type: 'doughnut', data: { labels: seasons.map(s => s.season), datasets: [{ data: seasons.map(s => s.count), backgroundColor: seasons.map(s => SEASON_COLORS[s.season] || '#94a3b8'), borderWidth: 2 }] }, options: { responsive: true, plugins: { legend: { position: 'right', labels: { font: { size: 11 } } } } } });
+                }
+                setSpinnerVisible('season-dist-loading', false);
+            } catch (err) { setSpinnerVisible('season-dist-loading', false); showChartError(['season-dist-chart'], statsErrorMsg(err)); }
+        };
+
+        const loadInculturationStats = async () => {
+            try {
+                const resp = await fetch(`${apiBaseLocal}/web/homilies/stats/inculturation`);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                const avgEl = document.getElementById('avg-inculturation');
+                if (avgEl) avgEl.textContent = data.avg_score != null ? data.avg_score.toFixed(1) : '--';
+                const dist = data.score_distribution || [];
+                const distCtx = document.getElementById('incult-dist-chart');
+                if (distCtx && dist.length) {
+                    new Chart(distCtx, { type: 'bar', data: { labels: dist.map(d => `Score ${d.score}`), datasets: [{ label: 'Homilies', data: dist.map(d => d.count), backgroundColor: dist.map(d => `rgba(180, 120, 30, ${0.3 + d.score * 0.14})`), borderRadius: 4 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
+                }
+                setSpinnerVisible('incult-dist-loading', false);
+                const byCounty = (data.avg_by_county || []).slice(0, 15);
+                const countyCtx = document.getElementById('incult-county-chart');
+                if (countyCtx && byCounty.length) {
+                    new Chart(countyCtx, { type: 'bar', data: { labels: byCounty.map(c => tidyLabel(c.county)), datasets: [{ label: 'Avg score', data: byCounty.map(c => c.avg_score), backgroundColor: 'rgba(120, 70, 10, 0.6)', borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, max: 5 } } } });
+                }
+                setSpinnerVisible('incult-county-loading', false);
+                const places = (data.top_place_names || []).slice(0, 12);
+                const placesCtx = document.getElementById('places-chart');
+                if (placesCtx && places.length) {
+                    new Chart(placesCtx, { type: 'bar', data: { labels: places.map(p => p.place), datasets: [{ label: 'Mentions', data: places.map(p => p.count), backgroundColor: 'rgba(180, 120, 30, 0.55)', borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
+                }
+                setSpinnerVisible('places-loading', false);
+            } catch (err) {
+                setSpinnerVisible('incult-dist-loading', false); setSpinnerVisible('incult-county-loading', false); setSpinnerVisible('places-loading', false);
+                showChartError(['incult-dist-chart','incult-county-chart','places-chart'], statsErrorMsg(err));
+            }
+        };
+
+        const loadLiturgicalAlignmentStats = async () => {
+            try {
+                const resp = await fetch(`${apiBaseLocal}/web/homilies/stats/liturgical-alignment`);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                const overallEl = document.getElementById('alignment-overall');
+                if (overallEl) overallEl.textContent = data.overall_percentage ?? '--';
+                const byCounty = (data.by_county || []).slice(0, 15);
+                const ctx = document.getElementById('alignment-chart');
+                if (ctx && byCounty.length) {
+                    new Chart(ctx, { type: 'bar', data: { labels: byCounty.map(c => tidyLabel(c.county)), datasets: [{ label: '% aligned', data: byCounty.map(c => c.percentage), backgroundColor: byCounty.map(c => c.percentage >= 50 ? 'rgba(16,185,129,0.6)' : 'rgba(180,120,30,0.55)'), borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: (ctx) => { const c = byCounty[ctx.dataIndex]; return `${c.aligned} of ${c.total} homilies`; } } } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } } } });
+                }
+                setSpinnerVisible('alignment-loading', false);
+            } catch (err) { setSpinnerVisible('alignment-loading', false); showChartError(['alignment-chart'], statsErrorMsg(err)); }
+        };
+
+        loadLiturgicalStats();
+        loadInculturationStats();
+        loadLiturgicalAlignmentStats();
+        document.querySelectorAll('[data-tooltip]').forEach((t) => { t.addEventListener('click', (e) => { e.stopPropagation(); const open = t.classList.contains('tooltip-open'); document.querySelectorAll('[data-tooltip]').forEach((el) => el.classList.remove('tooltip-open')); if (!open) t.classList.add('tooltip-open'); }); });
+        document.addEventListener('click', () => { document.querySelectorAll('[data-tooltip]').forEach((el) => el.classList.remove('tooltip-open')); });
+    </script>
+</body>
+</html>

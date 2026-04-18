@@ -8,6 +8,10 @@
         <link rel="icon" href="./images/sharing-homilies.png">
         <link href="/style.css" rel="stylesheet">
         <style>
+            .homily-card { transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer; }
+            .homily-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(0,0,0,0.18), 0 4px 8px -2px rgba(0,0,0,0.1); }
+            .homily-card:active { transform: translateY(0); }
+
             .interactive-btn {
                 transition: transform 0.2s ease-out;
             }
@@ -185,14 +189,9 @@
                                         <p class="text-sm text-gray-600 dark:text-gray-400">Full context, summary, and metadata for a single homily.</p>
                                     </div>
                                     <div class="flex flex-wrap items-center justify-center gap-3">
-                                        <a class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 dark:hover:bg-amber-100 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 dark:before:opacity-100 dark:before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500" href="./index.html">Back to home</a>
+                                        <a id="back-btn" class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 dark:hover:bg-amber-100 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 dark:before:opacity-100 dark:before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500" href="./index.html">Back to home</a>
                                         <a class="btn-sm interactive-btn text-amber-700 dark:text-gray-200 border border-amber-200 dark:border-gray-700 hover:border-amber-300 dark:hover:border-gray-600 shadow-lg shadow-black/25 dark:shadow-black/40 scroll-to-subscribe" href="#subscribe">Get updates</a>
                                     </div>
-                                </div>
-                                <div class="group flex justify-center gap-4">
-                                    <img class="rounded-xl even:rotate-2 odd:-rotate-2 group-hover:even:rotate-0 group-hover:odd:rotate-0 transition duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] shadow-lg shadow-black/25 dark:shadow-black/40" src="./images/header-image-01.png" width="245" height="160" alt="Church detail" />
-                                    <img class="rounded-xl even:rotate-2 odd:-rotate-2 group-hover:even:rotate-0 group-hover:odd:rotate-0 transition duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] shadow-lg shadow-black/25 dark:shadow-black/40" src="./images/header-image-03.png" width="245" height="160" alt="Homily highlight" />
-                                    <img class="rounded-xl even:rotate-2 odd:-rotate-2 group-hover:even:rotate-0 group-hover:odd:rotate-0 transition duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] shadow-lg shadow-black/25 dark:shadow-black/40" src="./images/header-image-02.png" width="245" height="160" alt="Community" />
                                 </div>
                             </header>
 
@@ -206,6 +205,7 @@
                                             <div class="flex-1 space-y-2">
                                                 <p id="homily-date" class="text-xs uppercase tracking-[0.22em] text-amber-700/70 dark:text-amber-200/70"></p>
                                                 <h2 id="homily-title" class="font-inter-tight text-2xl font-semibold text-gray-800 dark:text-gray-100">Loading homily…</h2>
+                                                <p id="homily-alt-title" class="text-base italic text-amber-700/80 dark:text-amber-300/80 hidden"></p>
                                                 <div class="flex flex-col gap-1 text-sm text-gray-600 dark:text-gray-400">
                                                     <span class="inline-flex items-center gap-2">
                                                         <i data-lucide="church" class="w-4 h-4 text-amber-700/80 dark:text-amber-200/80" aria-hidden="true"></i>
@@ -326,6 +326,47 @@
                                                 </div>
                                                 <ul id="homily-relevance" class="text-sm text-gray-600 dark:text-gray-400 space-y-1"></ul>
                                             </div>
+                                            <div id="homily-hymns-section" class="hidden rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                                <div class="feature-header mb-3">
+                                                    <div class="feature-title text-xs uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">
+                                                        <i data-lucide="music" class="w-4 h-4" aria-hidden="true"></i>
+                                                        Hymns
+                                                    </div>
+                                                    <div class="info-tooltip" data-tooltip>
+                                                        <i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                                        <span>Hymns identified in this homily's transcript by phrase matching.</span>
+                                                    </div>
+                                                </div>
+                                                <ul id="homily-hymns" class="space-y-3 text-sm text-gray-600 dark:text-gray-400"></ul>
+                                            </div>
+                                            <div class="grid gap-3 md:grid-cols-2">
+                                                <div class="rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                                    <div class="feature-header mb-2">
+                                                        <div class="feature-title text-xs uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">
+                                                            <i data-lucide="calendar" class="w-4 h-4" aria-hidden="true"></i>
+                                                            Liturgical context
+                                                        </div>
+                                                        <div class="info-tooltip" data-tooltip>
+                                                            <i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                                            <span>Liturgical season and feast day inferred from the homily date and content.</span>
+                                                        </div>
+                                                    </div>
+                                                    <div id="homily-liturgical" class="text-sm text-gray-600 dark:text-gray-400 space-y-1"></div>
+                                                </div>
+                                                <div class="rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                                    <div class="feature-header mb-2">
+                                                        <div class="feature-title text-xs uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">
+                                                            <i data-lucide="map-pin" class="w-4 h-4" aria-hidden="true"></i>
+                                                            Inculturalisation
+                                                        </div>
+                                                        <div class="info-tooltip" data-tooltip>
+                                                            <i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                                            <span>How locally grounded the homily is — place names, local events, and community references found in the homily text.</span>
+                                                        </div>
+                                                    </div>
+                                                    <div id="homily-inculturation" class="text-sm text-gray-600 dark:text-gray-400 space-y-2"></div>
+                                                </div>
+                                            </div>
                                             <div class="rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
                                                 <div class="feature-header mb-2">
                                                       <div class="feature-title text-xs uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">
@@ -369,13 +410,18 @@
 
         <script type="module" src="./js/main.js"></script>
         <script src="https://unpkg.com/lucide@latest"></script>
-        <script>
+        <script type="module">
+            import { formatDate, titleCaseFirst } from './js/utils.js';
+
             const rawApiBase = (document.documentElement.dataset.apiBase || '').trim();
-            const apiBaseLocal = typeof apiBase !== 'undefined'
-                ? apiBase
-                : (rawApiBase && !rawApiBase.includes('%VITE_') ? rawApiBase : 'http://localhost:5000');
+            const apiBaseLocal = rawApiBase && !rawApiBase.includes('%VITE_') ? rawApiBase : 'http://localhost:5000';
             const urlParams = new URLSearchParams(window.location.search);
             const homilyId = urlParams.get('id');
+
+            if (urlParams.get('from') === 'map') {
+                const backBtn = document.getElementById('back-btn');
+                if (backBtn) { backBtn.href = './counties.html'; backBtn.textContent = 'Back to map'; }
+            }
 
             const setText = (id, value) => {
                 const el = document.getElementById(id);
@@ -455,6 +501,60 @@
                 return text.charAt(0).toUpperCase() + text.slice(1);
             };
 
+            const setHymns = (hymns) => {
+                const section = document.getElementById('homily-hymns-section');
+                const el = document.getElementById('homily-hymns');
+                if (!section || !el) return;
+                if (!hymns || hymns.length === 0) {
+                    section.classList.add('hidden');
+                    return;
+                }
+                section.classList.remove('hidden');
+                el.innerHTML = '';
+                const seen = new Set();
+                const unique = hymns.filter(h => { const t = (h.title || '').toLowerCase(); return seen.has(t) ? false : seen.add(t); });
+                unique.forEach((hymn) => {
+                    const li = document.createElement('li');
+                    li.className = 'flex flex-col gap-1';
+
+                    const header = document.createElement('div');
+                    header.className = 'flex items-baseline gap-2';
+
+                    const title = document.createElement('span');
+                    title.className = 'font-medium text-gray-800 dark:text-gray-100';
+                    title.textContent = hymn.title || '';
+                    header.appendChild(title);
+
+                    if (hymn.source) {
+                        const source = document.createElement('span');
+                        source.className = 'text-xs text-amber-700/60 dark:text-amber-200/60';
+                        source.textContent = hymn.source;
+                        header.appendChild(source);
+                    }
+
+                    if (hymn.id) {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'ml-auto shrink-0 text-xs text-amber-700 dark:text-amber-400 hover:underline cursor-pointer';
+                        btn.textContent = 'More detail';
+                        btn.addEventListener('click', () => openHymnModal(hymn.id, hymn.title));
+                        header.appendChild(btn);
+                    }
+
+                    li.appendChild(header);
+
+                    (hymn.matched_phrases || []).slice(0, 2).forEach((match) => {
+                        if (!match.snippet) return;
+                        const q = document.createElement('p');
+                        q.className = 'text-xs italic text-gray-500 dark:text-gray-500 pl-2 border-l-2 border-amber-300/60 dark:border-amber-700/60';
+                        q.textContent = `"…${match.snippet}…"`;
+                        li.appendChild(q);
+                    });
+
+                    el.appendChild(li);
+                });
+            };
+
             const setPills = (id, items) => {
                 const el = document.getElementById(id);
                 if (!el) return;
@@ -467,22 +567,7 @@
                 });
             };
 
-            const titleCaseFirst = (value) => {
-                if (!value) return '';
-                const text = String(value);
-                return text.charAt(0).toUpperCase() + text.slice(1);
-            };
-
-            const capitalizeFirst = (value) => {
-                if (!value) return '';
-                const text = String(value);
-                return text.charAt(0).toUpperCase() + text.slice(1);
-            };
-
-            const formatDate = (value) => {
-                if (!value) return '';
-                return String(value).split(' ')[0];
-            };
+            const capitalizeFirst = titleCaseFirst;
 
             const getChurchName = (value) => {
                 if (!value) return '';
@@ -503,7 +588,9 @@
                         throw new Error(`HTTP ${response.status}`);
                     }
                     const data = await response.json();
-                    setText('homily-title', data.title || data.churchName || 'Homily');
+                    setText('homily-title', data.alt_title || data.title || data.churchName || 'Homily');
+                    const altTitleEl = document.getElementById('homily-alt-title');
+                    if (altTitleEl) altTitleEl.classList.add('hidden');
                     setText('homily-date', formatDate(data.date));
                     const countyText = titleCaseFirst(data.county);
                     const churchText = titleCaseFirst(getChurchName(data.churchName || data.church));
@@ -514,14 +601,15 @@
                     setText('homily-meta', data.priest ? `Homily by ${data.priest}` : '');
                     setText('homily-summary', data.notification_summary || data.summary || data.homily || '');
                     setText('homily-text', data.homily || data.transcript || '');
-                    setList('homily-points', data.takeaway_points || data.points || []);
+                    setList('homily-points', data.takeaway_points || []);
                     setIconList(
                         'homily-actions',
-                        data.action_items || data.actions || [],
+                        data.action_items || [],
                         'check-square',
                         'w-3.5 h-3.5'
                     );
-                    const verses = (data.verses || []).map((v) => {
+                    const versesRaw = Array.isArray(data.verses) ? data.verses : [];
+                    const verses = versesRaw.map((v) => {
                         if (typeof v === 'string') return v;
                         const ref = [v.book, v.chapter, v.verse_start, v.verse_end].filter(Boolean).join(' ');
                         return v.quoted_text ? `${ref}: ${v.quoted_text}` : ref;
@@ -530,17 +618,48 @@
                     setPills('homily-themes', data.theological_themes || []);
                     setPills('homily-audience', data.audience_focus || []);
                     setPills('homily-devices', data.rhetorical_devices || []);
-                    const relevance = (data.relevance || data.personal || []).map((r) => {
+                    const relevance = (Array.isArray(data.relevance) ? data.relevance : Array.isArray(data.personal) ? data.personal : []).map((r) => {
                         if (typeof r === 'string') return r;
                         return r.entity ? `${r.entity}: ${r.explanation || ''}`.trim() : r.explanation;
                     });
                     setVerseList('homily-relevance', relevance.map(capitalizeFirst));
+                    setHymns(data.matched_hymns || []);
+
+                    const liturgicalEl = document.getElementById('homily-liturgical');
+                    if (liturgicalEl) {
+                        const lc = data.liturgical_context || {};
+                        const lines = [];
+                        if (lc.season) lines.push(`<span class="font-medium text-amber-800 dark:text-amber-300">${lc.season}</span>`);
+                        if (lc.week_description) lines.push(lc.week_description);
+                        if (lc.feast_day) lines.push(`<span class="italic">${lc.feast_day}</span>`);
+                        if (lc.irish_observance) lines.push(`<span class="italic">${lc.irish_observance}</span>`);
+                        liturgicalEl.innerHTML = lines.length ? lines.map(l => `<p>${l}</p>`).join('') : '<p class="text-gray-400">—</p>';
+                    }
+
+                    const inculturationEl = document.getElementById('homily-inculturation');
+                    if (inculturationEl) {
+                        const inc = data.inculturalisation || {};
+                        const score = inc.score ?? null;
+                        const dots = score !== null
+                            ? Array.from({ length: 5 }, (_, i) =>
+                                `<span class="inline-block w-2.5 h-2.5 rounded-full ${i < score ? 'bg-amber-600' : 'bg-gray-200 dark:bg-gray-700'}"></span>`
+                              ).join('')
+                            : '';
+                        const places = (inc.place_names || []).map(p => `<span class="px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs">${p}</span>`).join(' ');
+                        const evidence = inc.evidence ? `<p class="text-xs text-gray-500 dark:text-gray-400 italic mt-1">${inc.evidence}</p>` : '';
+                        inculturationEl.innerHTML = `
+                            ${dots ? `<div class="flex gap-1 items-center mb-1">${dots}<span class="ml-1 text-xs text-gray-500">${score}/5</span></div>` : ''}
+                            ${places ? `<div class="flex flex-wrap gap-1">${places}</div>` : ''}
+                            ${evidence}
+                        `;
+                    }
 
                     const imageEl = document.getElementById('homily-image');
                     if (imageEl && Array.isArray(data.dalle) && data.dalle.length > 0) {
                         imageEl.src = data.dalle[0];
                     }
                 } catch (error) {
+                    console.error('Failed to load homily:', error);
                     setText('homily-title', 'Unable to load homily');
                     setText('homily-summary', 'Please try again later.');
                 }
@@ -574,7 +693,163 @@
             loadHomily().finally(() => {
                 refreshLucide();
             });
+
+            // ---------------------------------------------------------------------------
+            // Hymn detail modal (shared with dive-deeper)
+            // ---------------------------------------------------------------------------
+            const hymnModal = document.getElementById('hymn-modal');
+            const hymnModalTitle = document.getElementById('hymn-modal-title');
+            const hymnModalMeta = document.getElementById('hymn-modal-meta');
+            const hymnModalBody = document.getElementById('hymn-modal-body');
+
+            const closeHymnModal = () => { hymnModal && hymnModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); };
+            document.getElementById('hymn-modal-close')?.addEventListener('click', closeHymnModal);
+            document.getElementById('hymn-modal-backdrop')?.addEventListener('click', closeHymnModal);
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeHymnModal(); });
+
+            const openHymnModal = async (hymnId, hymnTitle) => {
+                if (!hymnModal) return;
+                hymnModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                hymnModalTitle.textContent = hymnTitle || '';
+                hymnModalMeta.textContent = '';
+                hymnModalBody.innerHTML = '<div class="text-center text-gray-400 py-8"><div class="chart-spinner inline-block" style="position:static;transform:none;"></div></div>';
+
+                if (!hymnId) {
+                    hymnModalBody.innerHTML = '<p class="text-gray-400 italic">No additional detail available for this hymn.</p>';
+                    return;
+                }
+
+                try {
+                    const [hymnResp, homiliesResp] = await Promise.all([
+                        fetch(`${apiBaseLocal}/web/hymns/${encodeURIComponent(hymnId)}`),
+                        fetch(`${apiBaseLocal}/web/hymns/${encodeURIComponent(hymnId)}/homilies?limit=3`),
+                    ]);
+                    if (!hymnResp.ok) throw new Error(`HTTP ${hymnResp.status}`);
+                    const h = await hymnResp.json();
+                    const recentHomilies = homiliesResp.ok ? (await homiliesResp.json()).data || [] : [];
+
+                    const pills = (items) => (items || []).map(s =>
+                        `<span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border border-amber-200/60">${s}</span>`
+                    ).join(' ');
+
+                    let html = '';
+
+                    if (h.source || h.source_url) {
+                        const linkText = h.source || 'Source';
+                        html += `<div class="flex items-center gap-2">
+                            <i data-lucide="link" class="w-4 h-4 text-amber-600/60 shrink-0"></i>
+                            ${h.source_url
+                                ? `<a href="${h.source_url}" target="_blank" rel="noopener" class="text-amber-700 dark:text-amber-400 hover:underline text-sm">${linkText}</a>`
+                                : `<span class="text-sm">${linkText}</span>`}
+                        </div>`;
+                    }
+
+                    if ((h.liturgical_seasons || []).length) {
+                        html += `<div><p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Liturgical seasons</p><div class="flex flex-wrap gap-1.5">${pills(h.liturgical_seasons)}</div></div>`;
+                    }
+                    if ((h.themes || []).length) {
+                        html += `<div><p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Themes</p><div class="flex flex-wrap gap-1.5">${pills(h.themes)}</div></div>`;
+                    }
+                    if ((h.feast_associations || []).length) {
+                        html += `<div><p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Feast associations</p><div class="flex flex-wrap gap-1.5">${pills(h.feast_associations)}</div></div>`;
+                    }
+                    if (h.irish_relevance === true || h.irish_relevance === 'true') {
+                        html += `<div class="flex items-center gap-2 text-sm text-green-700 dark:text-green-400"><i data-lucide="map-pin" class="w-4 h-4 shrink-0"></i>Commonly used in Irish Catholic worship</div>`;
+                    }
+                    if (h.liturgical_notes) {
+                        html += `<div><p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-1">Notes</p><p class="text-sm italic">${h.liturgical_notes}</p></div>`;
+                    }
+
+                    if (recentHomilies.length) {
+                        const truncateChurch = (val) => { if (!val) return ''; const raw = String(val); const name = raw.split('/').filter(Boolean).pop() || raw; const s = name.charAt(0).toUpperCase() + name.slice(1); return s.length > 14 ? s.slice(0, 14) + '…' : s; };
+                        const tc = (v) => v ? String(v).charAt(0).toUpperCase() + String(v).slice(1) : '';
+                        const getImg = (hom) => (Array.isArray(hom.dalle) && hom.dalle[0]) ? hom.dalle[0] : './images/header-image-01.jpg';
+                        const dStr = (hom) => hom.date ? String(hom.date).split(' ')[0] : '';
+                        const smry = (hom) => { const t = hom.notification_summary || ''; return t.length > 120 ? t.slice(0, 120).trim() + '…' : t; };
+
+                        const cards = recentHomilies.map((hom, idx) => {
+                            const homId = encodeURIComponent(hom.id || '');
+                            return `<article class="hymn-featured-card relative group homily-card flex-shrink-0 w-full${recentHomilies.length > 1 ? ' hidden' : ''}" data-card-index="${idx}" onclick="window.location.href='homily.html?id=${homId}'">
+                                <div class="absolute top-3 right-3 text-amber-700/70 dark:text-amber-200/70 group-hover:text-amber-800 dark:group-hover:text-amber-100 group-hover:rotate-45 transition" aria-hidden="true">
+                                    <svg class="fill-current opacity-80 dark:opacity-100" xmlns="http://www.w3.org/2000/svg" width="10" height="10"><path d="M1.018 10 0 8.983l7.572-7.575H1.723L1.736 0H10v8.266H8.577l.013-5.841L1.018 10Z"/></svg>
+                                </div>
+                                <div class="flex gap-3 items-stretch rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 p-3.5 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                                    <div class="relative w-20 min-w-[5rem] max-w-[5rem] aspect-square overflow-hidden rounded-xl bg-white/70 dark:bg-gray-900/60 border border-amber-100/60 dark:border-gray-700/60">
+                                        <img src="${getImg(hom)}" class="w-full h-full object-cover" alt="Homily cover" loading="lazy" />
+                                        <div class="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-gray-900/70 to-transparent text-white">
+                                            <p class="text-[8px] uppercase tracking-[0.15em] leading-tight">${truncateChurch(hom.church)}</p>
+                                            <p class="text-[10px] font-semibold leading-tight">${tc(hom.county)}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 min-w-0 space-y-1">
+                                        ${hom.alt_title ? `<p class="text-sm font-medium text-gray-800 dark:text-gray-100 leading-snug">${hom.alt_title}</p>` : ''}
+                                        <p class="text-[10px] uppercase tracking-[0.2em] text-amber-700/70 dark:text-amber-200/70">${dStr(hom)}</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">${smry(hom)}</p>
+                                    </div>
+                                </div>
+                            </article>`;
+                        }).join('');
+
+                        const navDots = recentHomilies.length > 1 ? recentHomilies.map((_, i) => `<button type="button" class="hymn-featured-dot w-1.5 h-1.5 rounded-full transition-colors ${i === 0 ? 'bg-amber-600' : 'bg-amber-200 dark:bg-gray-600'}" data-dot-index="${i}"></button>`).join('') : '';
+                        const navButtons = recentHomilies.length > 1 ? `<div class="flex items-center justify-between mt-2">
+                            <button type="button" id="hymn-featured-prev" class="p-1 rounded-lg text-amber-600/60 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-gray-800 transition-colors cursor-pointer" aria-label="Previous"><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+                            <div class="flex gap-1.5 items-center">${navDots}</div>
+                            <button type="button" id="hymn-featured-next" class="p-1 rounded-lg text-amber-600/60 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-gray-800 transition-colors cursor-pointer" aria-label="Next"><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
+                        </div>` : '';
+
+                        html += `<div class="pt-2 border-t border-amber-100/60 dark:border-gray-700/60">
+                            <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-3">Recently Featured</p>
+                            <div id="hymn-featured-track">${cards}</div>${navButtons}
+                        </div>`;
+                    }
+
+                    if (h.lyrics) {
+                        html += `<div><p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Lyrics</p><pre class="text-sm whitespace-pre-wrap font-sans leading-relaxed bg-white/60 dark:bg-gray-800/60 rounded-xl p-4 border border-amber-100/60 dark:border-gray-700/60">${h.lyrics.replace(/</g, '&lt;')}</pre></div>`;
+                    }
+
+                    hymnModalBody.innerHTML = html || '<p class="text-gray-400 italic">No additional detail available.</p>';
+                    refreshLucide();
+
+                    if (recentHomilies.length > 1) {
+                        const allCards = hymnModalBody.querySelectorAll('.hymn-featured-card');
+                        const allDots = hymnModalBody.querySelectorAll('.hymn-featured-dot');
+                        let current = 0;
+                        const show = (idx) => {
+                            allCards.forEach((c, i) => c.classList.toggle('hidden', i !== idx));
+                            allDots.forEach((d, i) => { d.classList.toggle('bg-amber-600', i === idx); d.classList.toggle('bg-amber-200', i !== idx); d.classList.toggle('dark:bg-gray-600', i !== idx); });
+                            current = idx;
+                        };
+                        show(0);
+                        hymnModalBody.querySelector('#hymn-featured-prev')?.addEventListener('click', (e) => { e.stopPropagation(); show((current - 1 + recentHomilies.length) % recentHomilies.length); });
+                        hymnModalBody.querySelector('#hymn-featured-next')?.addEventListener('click', (e) => { e.stopPropagation(); show((current + 1) % recentHomilies.length); });
+                        allDots.forEach(d => d.addEventListener('click', (e) => { e.stopPropagation(); show(parseInt(d.dataset.dotIndex, 10)); }));
+                    }
+                } catch (e) {
+                    hymnModalBody.innerHTML = '<p class="text-red-500 text-sm">Failed to load hymn detail. Please try again.</p>';
+                }
+            };
         </script>
+
+        <!-- Hymn detail modal -->
+        <div id="hymn-modal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+            <div id="hymn-modal-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+            <div class="relative z-10 flex items-start justify-center min-h-full p-4 pt-16">
+                <div class="w-full max-w-2xl bg-amber-50 dark:bg-gray-900 rounded-2xl shadow-2xl border border-amber-200/50 dark:border-gray-700/80 flex flex-col max-h-[80vh]">
+                    <div class="flex items-start justify-between gap-3 p-6 border-b border-amber-100/60 dark:border-gray-700/60 shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-1">Hymn detail</p>
+                            <h3 id="hymn-modal-title" class="font-inter-tight text-lg font-semibold text-gray-800 dark:text-gray-100 leading-snug"></h3>
+                            <p id="hymn-modal-meta" class="text-xs text-gray-500 dark:text-gray-400 mt-1"></p>
+                        </div>
+                        <button id="hymn-modal-close" class="shrink-0 p-1.5 rounded-lg hover:bg-amber-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" aria-label="Close">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    <div id="hymn-modal-body" class="overflow-y-auto p-6 space-y-5 text-sm text-gray-600 dark:text-gray-400"></div>
+                </div>
+            </div>
+        </div>
 
     </body>
 

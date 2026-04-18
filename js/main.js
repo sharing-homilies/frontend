@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs';
+import { formatDate, titleCaseFirst, truncateText } from './utils.js';
 
 window.Alpine = Alpine;
 Alpine.start();
@@ -75,12 +76,6 @@ if (grid) {
     return './images/header-image-01.jpg';
   };
 
-  const truncateText = (text, length = 200) => {
-    if (!text) return '';
-    if (text.length <= length) return text;
-    return `${text.slice(0, length).trim()}…`;
-  };
-
   const normalizePoints = (points) => {
     if (Array.isArray(points)) return points.filter(Boolean);
     if (typeof points === 'string') {
@@ -93,16 +88,6 @@ if (grid) {
   };
 
   const getDisplayValue = (value) => (value ? String(value) : '');
-  const formatDate = (value) => {
-    if (!value) return '';
-    const text = String(value);
-    return text.split(' ')[0];
-  };
-  const titleCaseFirst = (value) => {
-    if (!value) return '';
-    const text = String(value);
-    return text.charAt(0).toUpperCase() + text.slice(1);
-  };
 
   const truncateWithEllipsis = (value, maxLength = 14) => {
     const text = String(value);
@@ -149,6 +134,8 @@ if (grid) {
       if (countyEl) countyEl.textContent = titleCaseFirst(item.county);
       if (dateEl) dateEl.textContent = formatDate(item.date);
       if (churchEl) churchEl.textContent = getChurchName(item.churchName || item.church);
+      const altTitleEl = clone.querySelector('[data-homily-alt-title]');
+      if (altTitleEl) altTitleEl.textContent = item.alt_title || '';
       clone.querySelector('[data-homily-summary]').textContent = truncateText(
         item.notification_summary || item.homily || item.transcript || ''
       );
