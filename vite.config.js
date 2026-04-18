@@ -11,7 +11,7 @@ export default defineConfig({
         verifyEmail: resolve(__dirname, 'verify-email.html'),
         diveDeeper: resolve(__dirname, 'dive-deeper.html'),
         counties: resolve(__dirname, 'counties.html'),
-        generalStats: resolve(__dirname, 'general-stats.html'),
+        generalStats: resolve(__dirname, 'stats-general.html'),
       },
     },
   },
