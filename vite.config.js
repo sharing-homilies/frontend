@@ -10,6 +10,8 @@ export default defineConfig({
         homily: resolve(__dirname, 'homily.html'),
         verifyEmail: resolve(__dirname, 'verify-email.html'),
         diveDeeper: resolve(__dirname, 'dive-deeper.html'),
+        counties: resolve(__dirname, 'counties.html'),
+        generalStats: resolve(__dirname, 'general-stats.html'),
       },
     },
   },
