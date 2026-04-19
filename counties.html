@@ -315,6 +315,9 @@
                 currentApprox = [];
                 document.getElementById('panel-placeholder').classList.remove('hidden');
                 document.getElementById('panel-content').classList.add('hidden');
+                if (document.getElementById('county-rankings-list')?.children.length) {
+                    document.getElementById('county-rankings')?.classList.remove('hidden');
+                }
             } else {
                 document.getElementById('map-reset-label').textContent = prev.label;
             }
@@ -696,6 +699,42 @@
                             <span>100% with hymns</span></div>`;
                     }
                 }
+                // Update rankings to reflect hymn filter
+                if (metric === 'percentage') {
+                    renderCountyRankings();
+                } else {
+                    const rankField = isDiversity ? 'unique_hymns' : 'count';
+                    const rankEntries = Object.entries(meta)
+                        .map(([slug, row]) => ({ slug, count: row[rankField] || 0 }))
+                        .filter(r => r.count > 0)
+                        .sort((a, b) => b.count - a.count)
+                        .slice(0, 15);
+                    if (rankEntries.length) {
+                        const maxRank = rankEntries[0].count;
+                        const container = document.getElementById('county-rankings');
+                        const list = document.getElementById('county-rankings-list');
+                        if (container && list) {
+                            list.innerHTML = '';
+                            rankEntries.forEach((r, i) => {
+                                const pct = Math.round((r.count / maxRank) * 100);
+                                const label = r.slug.replace(/-/g, ' ').replace(/^./, c => c.toUpperCase());
+                                const row = document.createElement('div');
+                                row.className = 'county-rank-row flex items-center gap-2 py-1 cursor-pointer hover:opacity-80 transition-opacity';
+                                row.dataset.slug = r.slug;
+                                row.innerHTML = `<span class="text-xs text-gray-400 dark:text-gray-500 w-4 text-right shrink-0">${i+1}</span><span class="text-xs font-medium text-gray-700 dark:text-gray-300 w-20 shrink-0 truncate">${label}</span><div class="flex-1 h-2 rounded-full bg-amber-100 dark:bg-gray-700 overflow-hidden"><div class="h-full rounded-full transition-all" style="width:${pct}%;background:${hex}cc"></div></div><span class="text-xs text-gray-500 dark:text-gray-400 w-8 text-right shrink-0">${r.count}</span>`;
+                                row.addEventListener('click', () => {
+                                    const ieId = Object.keys(COUNTY_IDS).find(k => COUNTY_IDS[k] === r.slug);
+                                    if (ieId) {
+                                        const path = document.getElementById(ieId);
+                                        if (path) path.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                                    }
+                                });
+                                list.appendChild(row);
+                            });
+                            if (!currentSlug) container.classList.remove('hidden');
+                        }
+                    }
+                }
             } catch (e) {
                 console.warn('Failed to load hymns-by-county:', e);
             }
@@ -916,7 +955,7 @@
                 btn.addEventListener('click', () => applyValueHeatmap(mode, val, color, btn));
                 wrap.appendChild(btn);
             }
-            wrap.classList.remove('hidden');
+            wrap.classList.remove('hidden', 'flex-col');
             wrap.classList.add('flex');
         }
 
@@ -1371,6 +1410,7 @@
             el.classList.add('selected-county');
             selectedEl = el;
             currentSlug = slug;
+            document.getElementById('county-rankings')?.classList.add('hidden');
             zoomToCounty(slug);
             showCountyPanel(slug);
             Promise.all([loadCountyChurches(slug), loadCountyHomilies(slug)])

@@ -123,7 +123,7 @@
                 topThemes.forEach((t, i) => { themeColorMap[t.theme] = PILL_PALETTE[i % PILL_PALETTE.length]; });
                 const topCtx = document.getElementById('themes-top-chart');
                 if (topCtx && topThemes.length) {
-                    const topChart = new Chart(topCtx, { type: 'bar', data: { labels: topThemes.map(t => tidyLabel(t.theme)), datasets: [{ label: 'Count', data: topThemes.map(t => t.count), backgroundColor: topThemes.map(() => 'rgba(180,120,30,0.55)'), hoverBackgroundColor: topThemes.map(() => 'rgba(180,120,30,0.8)'), borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } }, onClick: async (evt, elements) => {
+                    const onThemeClick = async (evt, elements) => {
                         if (!elements.length) return;
                         const idx = elements[0].index;
                         const theme = topThemes[idx]?.theme;
@@ -134,14 +134,23 @@
                         const listEl = document.getElementById('theme-samples-list');
                         samplesEl.classList.remove('hidden');
                         labelEl.textContent = `${tidyLabel(theme)} — ${count} homilies`;
-                        listEl.innerHTML = '<p class="text-xs text-gray-400">Loading…</p>';
+                        listEl.innerHTML = '<p class="text-xs text-gray-400">Loading\u2026</p>';
                         try {
                             const r = await fetch(`${apiBaseLocal}/web/homilies/search?theme=${encodeURIComponent(theme)}&limit=3`);
                             const d = await r.json();
                             const items = d.data || [];
-                            listEl.innerHTML = items.length ? items.map(h => `<a href="./homily.html?id=${h.id||h._id}" class="flex flex-col gap-0.5 p-2 rounded-lg bg-amber-50 dark:bg-gray-800 hover:bg-amber-100 dark:hover:bg-gray-700 transition-colors no-underline"><span class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">${h.church || 'Unknown church'}</span><span class="text-xs text-gray-400 dark:text-gray-500">${h.county ? tidyLabel(h.county) : ''} · ${h.date ? h.date.slice(0,10) : ''}</span></a>`).join('') : '<p class="text-xs text-gray-400">No sample homilies found.</p>';
-                        } catch { listEl.innerHTML = '<p class="text-xs text-gray-400">Could not load samples.</p>'; }
-                    } } } });
+                            listEl.innerHTML = items.length
+                                ? items.map(h => `<a href="./homily.html?id=${h.id||h._id}" class="flex flex-col gap-0.5 p-2 rounded-lg bg-amber-50 dark:bg-gray-800 hover:bg-amber-100 dark:hover:bg-gray-700 transition-colors no-underline"><span class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">${h.church || 'Unknown church'}</span><span class="text-xs text-gray-400 dark:text-gray-500">${h.county ? tidyLabel(h.county) : ''} \u00b7 ${h.date ? h.date.slice(0,10) : ''}</span></a>`).join('')
+                                : '<p class="text-xs text-gray-400">No sample homilies found.</p>';
+                        } catch (e) {
+                            listEl.innerHTML = '<p class="text-xs text-gray-400">Could not load samples.</p>';
+                        }
+                    };
+                    new Chart(topCtx, {
+                        type: 'bar',
+                        data: { labels: topThemes.map(t => tidyLabel(t.theme)), datasets: [{ label: 'Count', data: topThemes.map(t => t.count), backgroundColor: topThemes.map(() => 'rgba(180,120,30,0.55)'), hoverBackgroundColor: topThemes.map(() => 'rgba(180,120,30,0.8)'), borderRadius: 4 }] },
+                        options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } }, onClick: onThemeClick }
+                    });
                     document.getElementById('theme-samples-close')?.addEventListener('click', () => document.getElementById('theme-samples').classList.add('hidden'));
                 }
                 setSpinnerVisible('themes-top-loading', false);
