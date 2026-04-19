@@ -94,15 +94,9 @@
                 }
                 setSpinnerVisible('actions-theme-loading', false);
 
-                const trend = data.trend || [];
-                const trendCtx = document.getElementById('actions-trend-chart');
-                if (trendCtx && trend.length) {
-                    new Chart(trendCtx, { type: 'line', data: { labels: trend.map(t => t.month), datasets: [{ label: 'Avg density', data: trend.map(t => t.avg_density), borderColor: 'rgba(245, 158, 11, 0.8)', backgroundColor: 'rgba(245, 158, 11, 0.1)', fill: true, tension: 0.3, pointRadius: 3 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
-                }
-                setSpinnerVisible('actions-trend-loading', false);
             } catch (err) {
-                ['actions-verbs-loading','actions-theme-loading','actions-trend-loading'].forEach(id => setSpinnerVisible(id, false));
-                showChartError(['actions-verbs-chart','actions-theme-chart','actions-trend-chart'], statsErrorMsg(err));
+                ['actions-verbs-loading','actions-theme-loading'].forEach(id => setSpinnerVisible(id, false));
+                showChartError(['actions-verbs-chart','actions-theme-chart'], statsErrorMsg(err));
             }
         };
 
