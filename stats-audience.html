@@ -45,7 +45,7 @@
                     <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
                         <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Trend</p>
                         <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Audience focus over time</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Stacked trend showing how top audience tags shift month to month.</span></button></div>
-                        <div class="chart-wrap"><div class="chart-spinner" id="audience-trend-loading" aria-label="Loading chart"></div><canvas id="audience-trend-chart" height="200"></canvas></div>
+                        <div class="chart-wrap"><div class="chart-spinner" id="audience-trend-loading" aria-label="Loading chart"></div><canvas id="audience-trend-chart" height="320"></canvas></div>
                     </div>
                 </div>
                 <div class="grid gap-4 md:grid-cols-2">
@@ -86,6 +86,16 @@
         const statsErrorMsg = (err) => err.message === 'HTTP 503' ? 'Stats not yet available — run the batch pipeline first.' : 'Could not load stats.';
 
         const TAG_COLORS = ['rgba(180,120,30,0.6)','rgba(120,70,10,0.6)','rgba(99,102,241,0.6)','rgba(16,185,129,0.6)','rgba(239,68,68,0.6)','rgba(139,92,246,0.6)'];
+        const PILL_PALETTE = [
+            { bg: '#fef3c7', text: '#92400e', border: '#fde68a' },
+            { bg: '#ede9fe', text: '#5b21b6', border: '#ddd6fe' },
+            { bg: '#d1fae5', text: '#065f46', border: '#a7f3d0' },
+            { bg: '#fee2e2', text: '#991b1b', border: '#fecaca' },
+            { bg: '#dbeafe', text: '#1e40af', border: '#bfdbfe' },
+            { bg: '#fce7f3', text: '#9d174d', border: '#fbcfe8' },
+            { bg: '#fff7ed', text: '#c2410c', border: '#fed7aa' },
+            { bg: '#ecfdf5', text: '#065f46', border: '#6ee7b7' },
+        ];
 
         const loadAudienceStats = async () => {
             try {
@@ -94,6 +104,8 @@
                 const data = await resp.json();
 
                 const dist = (data.audience_counts || []).slice(0, 10);
+                const audienceColorMap = {};
+                dist.forEach((d, i) => { audienceColorMap[d.audience] = PILL_PALETTE[i % PILL_PALETTE.length]; });
                 const distCtx = document.getElementById('audience-dist-chart');
                 if (distCtx && dist.length) {
                     new Chart(distCtx, { type: 'doughnut', data: { labels: dist.map(d => tidyLabel(d.audience)), datasets: [{ data: dist.map(d => d.count), backgroundColor: dist.map((_, i) => TAG_COLORS[i % TAG_COLORS.length]), borderWidth: 2 }] }, options: { responsive: true, plugins: { legend: { position: 'right', labels: { font: { size: 11 } } } } } });
@@ -111,7 +123,7 @@
                 }
                 setSpinnerVisible('audience-trend-loading', false);
 
-                const renderTagList = (items, nameKey, tagKey, countKey, canvasId, spinnerId, nameFn) => {
+                const renderTagList = (items, nameKey, tagKey, countKey, canvasId, spinnerId, nameFn, tagColorFn) => {
                     const canvas = document.getElementById(canvasId);
                     setSpinnerVisible(spinnerId, false);
                     if (!canvas || !items.length) return;
@@ -122,15 +134,21 @@
                     const list = document.createElement('div');
                     list.className = 'space-y-1.5 py-1';
                     items.forEach(c => {
+                        const tagVal = c[tagKey];
+                        const col = tagColorFn ? tagColorFn(tagVal) : null;
+                        const pillStyle = col
+                            ? `style="background:${col.bg};color:${col.text};border-color:${col.border}" class="text-xs px-2 py-0.5 rounded-full border shrink-0"`
+                            : `class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200/50 shrink-0"`;
                         const row = document.createElement('div');
                         row.className = 'flex items-center gap-2 py-1.5 border-b border-amber-100/50 dark:border-gray-700/40 last:border-0';
-                        row.innerHTML = `<span class="flex-1 text-xs text-gray-700 dark:text-gray-300 truncate">${nameFn(c[nameKey])}</span><span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200/50 shrink-0">${tidyLabel(c[tagKey])}</span><span class="text-xs text-gray-400 shrink-0 w-6 text-right">${c[countKey] ?? ''}×</span>`;
+                        row.innerHTML = `<span class="flex-1 text-xs text-gray-700 dark:text-gray-300 truncate">${nameFn(c[nameKey])}</span><span ${pillStyle}>${tidyLabel(tagVal)}</span><span class="text-xs text-gray-400 shrink-0 w-6 text-right">${c[countKey] ?? ''}×</span>`;
                         list.appendChild(row);
                     });
                     wrap.appendChild(list);
                 };
-                renderTagList((data.audience_by_church || []).slice(0, 12), 'name', 'top_audience', 'top_count', 'audience-church-chart', 'audience-church-loading', tidyChurchName);
-                renderTagList((data.audience_by_county || []).slice(0, 15), 'name', 'top_audience', 'top_count', 'audience-county-chart', 'audience-county-loading', tidyLabel);
+                const audiencePillFn = (tagVal) => audienceColorMap[tagVal] || PILL_PALETTE[0];
+                renderTagList((data.audience_by_church || []).slice(0, 12), 'name', 'top_audience', 'top_count', 'audience-church-chart', 'audience-church-loading', tidyChurchName, audiencePillFn);
+                renderTagList((data.audience_by_county || []).slice(0, 15), 'name', 'top_audience', 'top_count', 'audience-county-chart', 'audience-county-loading', tidyLabel, audiencePillFn);
 
                 const cooc = data.cooccurrence || {};
                 const matrixEl = document.getElementById('audience-matrix');

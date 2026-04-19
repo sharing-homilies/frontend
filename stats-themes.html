@@ -48,7 +48,7 @@
                 <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
                     <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Trend</p>
                     <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Top themes over time</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Monthly stacked trend showing how the top theological themes rise and fall through the year.</span></button></div>
-                    <div class="chart-wrap"><div class="chart-spinner" id="themes-trend-loading" aria-label="Loading chart"></div><canvas id="themes-trend-chart" height="180"></canvas></div>
+                    <div class="chart-wrap"><div class="chart-spinner" id="themes-trend-loading" aria-label="Loading chart"></div><canvas id="themes-trend-chart" height="320"></canvas></div>
                 </div>
                 <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
                     <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Geography</p>
@@ -79,6 +79,16 @@
         const showChartError = (ids, msg) => { for (const id of ids) { const el = document.getElementById(id); if (!el) continue; el.style.display = 'none'; const w = el.closest('.chart-wrap'); if (!w) continue; const p = document.createElement('p'); p.className = 'text-xs text-gray-400 dark:text-gray-500 text-center py-6'; p.textContent = msg; w.appendChild(p); } };
         const statsErrorMsg = (err) => err.message === 'HTTP 503' ? 'Stats not yet available — run the batch pipeline first.' : 'Could not load stats.';
         const TAG_COLORS = ['rgba(180,120,30,0.6)','rgba(120,70,10,0.6)','rgba(99,102,241,0.6)','rgba(16,185,129,0.6)','rgba(239,68,68,0.6)','rgba(139,92,246,0.6)','rgba(245,158,11,0.6)','rgba(20,184,166,0.6)'];
+        const PILL_PALETTE = [
+            { bg: '#fef3c7', text: '#92400e', border: '#fde68a' },
+            { bg: '#ede9fe', text: '#5b21b6', border: '#ddd6fe' },
+            { bg: '#d1fae5', text: '#065f46', border: '#a7f3d0' },
+            { bg: '#fee2e2', text: '#991b1b', border: '#fecaca' },
+            { bg: '#dbeafe', text: '#1e40af', border: '#bfdbfe' },
+            { bg: '#fce7f3', text: '#9d174d', border: '#fbcfe8' },
+            { bg: '#fff7ed', text: '#c2410c', border: '#fed7aa' },
+            { bg: '#ecfdf5', text: '#065f46', border: '#6ee7b7' },
+        ];
 
         const loadThemesStats = async () => {
             try {
@@ -87,6 +97,8 @@
                 const data = await resp.json();
 
                 const topThemes = (data.top_themes || []).slice(0, 12);
+                const themeColorMap = {};
+                topThemes.forEach((t, i) => { themeColorMap[t.theme] = PILL_PALETTE[i % PILL_PALETTE.length]; });
                 const topCtx = document.getElementById('themes-top-chart');
                 if (topCtx && topThemes.length) {
                     new Chart(topCtx, { type: 'bar', data: { labels: topThemes.map(t => tidyLabel(t.theme)), datasets: [{ label: 'Count', data: topThemes.map(t => t.count), backgroundColor: 'rgba(180,120,30,0.55)', borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } } });
@@ -123,10 +135,10 @@
                         const list = document.createElement('div');
                         list.className = 'space-y-1.5 py-1';
                         byCounty.forEach(c => {
-                            const topTwo = (c.top_themes || []).slice(0, 2).map(t => tidyLabel(t.theme));
+                            const topTwo = (c.top_themes || []).slice(0, 2);
                             const row = document.createElement('div');
                             row.className = 'flex items-center gap-2 py-1.5 border-b border-amber-100/50 dark:border-gray-700/40 last:border-0';
-                            row.innerHTML = `<span class="flex-1 text-xs text-gray-700 dark:text-gray-300 truncate font-medium">${tidyLabel(c.county)}</span>${topTwo.map(th => `<span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200/50 shrink-0">${th}</span>`).join('')}`;
+                            row.innerHTML = `<span class="flex-1 text-xs text-gray-700 dark:text-gray-300 truncate font-medium">${tidyLabel(c.county)}</span>${topTwo.map(t => { const col = themeColorMap[t.theme] || PILL_PALETTE[0]; return `<span class="text-xs px-2 py-0.5 rounded-full border shrink-0" style="background:${col.bg};color:${col.text};border-color:${col.border}">${tidyLabel(t.theme)}</span>`; }).join('')}`;
                             list.appendChild(row);
                         });
                         wrap.appendChild(list);
