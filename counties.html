@@ -709,6 +709,7 @@
                         .slice(0, 15);
                     const container = document.getElementById('county-rankings');
                     const list = document.getElementById('county-rankings-list');
+                    if (container && !rankEntries.length) { container.classList.add('hidden'); }
                     if (container && list && rankEntries.length) {
                         const maxRank = rankEntries[0].count;
                         list.innerHTML = '';
