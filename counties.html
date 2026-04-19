@@ -699,41 +699,39 @@
                             <span>100% with hymns</span></div>`;
                     }
                 }
-                // Update rankings to reflect hymn filter
-                if (metric === 'percentage') {
-                    renderCountyRankings();
-                } else {
-                    const rankField = isDiversity ? 'unique_hymns' : 'count';
-                    const rankEntries = Object.entries(meta)
-                        .map(([slug, row]) => ({ slug, count: row[rankField] || 0 }))
+                // Update rankings — read from the dataset attrs just written to the map paths
+                const rankAttr = isDiversity ? 'hymnUnique' : (isCount ? 'hymnCount' : null);
+                if (rankAttr) {
+                    const rankEntries = Object.entries(COUNTY_IDS)
+                        .map(([ieId, slug]) => ({ slug, count: Number(document.getElementById(ieId)?.dataset[rankAttr] || 0) }))
                         .filter(r => r.count > 0)
                         .sort((a, b) => b.count - a.count)
                         .slice(0, 15);
-                    if (rankEntries.length) {
+                    const container = document.getElementById('county-rankings');
+                    const list = document.getElementById('county-rankings-list');
+                    if (container && list && rankEntries.length) {
                         const maxRank = rankEntries[0].count;
-                        const container = document.getElementById('county-rankings');
-                        const list = document.getElementById('county-rankings-list');
-                        if (container && list) {
-                            list.innerHTML = '';
-                            rankEntries.forEach((r, i) => {
-                                const pct = Math.round((r.count / maxRank) * 100);
-                                const label = r.slug.replace(/-/g, ' ').replace(/^./, c => c.toUpperCase());
-                                const row = document.createElement('div');
-                                row.className = 'county-rank-row flex items-center gap-2 py-1 cursor-pointer hover:opacity-80 transition-opacity';
-                                row.dataset.slug = r.slug;
-                                row.innerHTML = `<span class="text-xs text-gray-400 dark:text-gray-500 w-4 text-right shrink-0">${i+1}</span><span class="text-xs font-medium text-gray-700 dark:text-gray-300 w-20 shrink-0 truncate">${label}</span><div class="flex-1 h-2 rounded-full bg-amber-100 dark:bg-gray-700 overflow-hidden"><div class="h-full rounded-full transition-all" style="width:${pct}%;background:${hex}cc"></div></div><span class="text-xs text-gray-500 dark:text-gray-400 w-8 text-right shrink-0">${r.count}</span>`;
-                                row.addEventListener('click', () => {
-                                    const ieId = Object.keys(COUNTY_IDS).find(k => COUNTY_IDS[k] === r.slug);
-                                    if (ieId) {
-                                        const path = document.getElementById(ieId);
-                                        if (path) path.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-                                    }
-                                });
-                                list.appendChild(row);
+                        list.innerHTML = '';
+                        rankEntries.forEach((r, i) => {
+                            const pct = Math.round((r.count / maxRank) * 100);
+                            const label = r.slug.replace(/-/g, ' ').replace(/^./, c => c.toUpperCase());
+                            const row = document.createElement('div');
+                            row.className = 'county-rank-row flex items-center gap-2 py-1 cursor-pointer hover:opacity-80 transition-opacity';
+                            row.dataset.slug = r.slug;
+                            row.innerHTML = `<span class="text-xs text-gray-400 dark:text-gray-500 w-4 text-right shrink-0">${i+1}</span><span class="text-xs font-medium text-gray-700 dark:text-gray-300 w-20 shrink-0 truncate">${label}</span><div class="flex-1 h-2 rounded-full bg-amber-100 dark:bg-gray-700 overflow-hidden"><div class="h-full rounded-full transition-all" style="width:${pct}%;background:${hex}cc"></div></div><span class="text-xs text-gray-500 dark:text-gray-400 w-8 text-right shrink-0">${r.count}</span>`;
+                            row.addEventListener('click', () => {
+                                const ieId = Object.keys(COUNTY_IDS).find(k => COUNTY_IDS[k] === r.slug);
+                                if (ieId) {
+                                    const path = document.getElementById(ieId);
+                                    if (path) path.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                                }
                             });
-                            if (!currentSlug) container.classList.remove('hidden');
-                        }
+                            list.appendChild(row);
+                        });
+                        if (!currentSlug) container.classList.remove('hidden');
                     }
+                } else {
+                    renderCountyRankings();
                 }
             } catch (e) {
                 console.warn('Failed to load hymns-by-county:', e);
