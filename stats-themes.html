@@ -14,6 +14,7 @@
         .info-tooltip span { position: absolute; right: 0; top: 120%; min-width: 260px; max-width: 320px; padding: 0.6rem 0.8rem; border-radius: 12px; background: rgba(255, 248, 235, 0.98); color: rgba(120, 70, 10, 0.95); font-size: 12px; line-height: 1.5; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 30; box-shadow: 0 12px 24px rgba(120, 70, 10, 0.18); border: 1px solid rgba(180, 120, 30, 0.35); }
         .info-tooltip.tooltip-open span { opacity: 1; transform: translateY(0); }
         @media (hover: hover) { .info-tooltip:hover span { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 480px) { .info-tooltip span { right: auto; left: 50%; transform: translateX(-50%) translateY(-4px); min-width: 200px; max-width: calc(100vw - 2rem); } .info-tooltip.tooltip-open span, .info-tooltip:hover span { transform: translateX(-50%) translateY(0); } }
         .chart-wrap { position: relative; min-height: 160px; }
         .chart-spinner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255, 252, 244, 0.6); border-radius: 12px; }
         .chart-spinner::before { content: ''; width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(180, 120, 30, 0.3); border-top-color: rgba(120, 70, 10, 0.7); animation: spin 0.9s linear infinite; }
@@ -32,12 +33,28 @@
             </div>
         </header>
         <main class="grow py-14 space-y-14">
+        <nav class="flex flex-wrap justify-center gap-1.5 -mt-8 mb-8 pb-6 border-b border-amber-100/60 dark:border-gray-800" aria-label="Stats sections">
+            <a href="./stats-general.html" class="text-xs px-2.5 py-1 rounded-full border border-amber-200 dark:border-gray-700 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-gray-800 transition-colors">General</a>
+            <a href="./stats-audience.html" class="text-xs px-2.5 py-1 rounded-full border border-sky-200 dark:border-gray-700 text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-gray-800 transition-colors">Audience</a>
+            <a href="./stats-devices.html" class="text-xs px-2.5 py-1 rounded-full border border-violet-200 dark:border-gray-700 text-violet-700 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-gray-800 transition-colors">Devices</a>
+            <a href="./stats-themes.html" class="text-xs px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-300 font-medium">Themes</a>
+            <a href="./stats-hymns.html" class="text-xs px-2.5 py-1 rounded-full border border-yellow-300 dark:border-gray-700 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-gray-800 transition-colors">Hymns</a>
+            <a href="./stats-context.html" class="text-xs px-2.5 py-1 rounded-full border border-indigo-200 dark:border-gray-700 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-colors">Context</a>
+            <a href="./stats-scripture.html" class="text-xs px-2.5 py-1 rounded-full border border-blue-200 dark:border-gray-700 text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors">Scripture</a>
+            <a href="./stats-actions.html" class="text-xs px-2.5 py-1 rounded-full border border-orange-200 dark:border-gray-700 text-orange-700 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-gray-800 transition-colors">Actions</a>
+            <a href="./stats-entities.html" class="text-xs px-2.5 py-1 rounded-full border border-teal-200 dark:border-gray-700 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-gray-800 transition-colors">Entities</a>
+        </nav>
+        <p id="coverage-meta" class="text-center text-xs text-gray-400 dark:text-gray-500 -mt-4 mb-4"></p>
             <section class="space-y-6">
                 <div class="grid gap-4 md:grid-cols-2">
                     <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
                         <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Themes</p>
-                        <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Top theological themes</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>The most frequently tagged theological themes across all homilies in the archive.</span></button></div>
+                        <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Top theological themes</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>The most frequently tagged theological themes across all homilies. Click a bar to see sample homilies.</span></button></div>
                         <div class="chart-wrap"><div class="chart-spinner" id="themes-top-loading" aria-label="Loading chart"></div><canvas id="themes-top-chart" height="220"></canvas></div>
+                        <div id="theme-samples" class="hidden mt-4 pt-4 border-t border-amber-100/60 dark:border-gray-700/40 space-y-2">
+                            <div class="flex items-center justify-between mb-1"><p id="theme-samples-label" class="text-xs font-semibold text-amber-700 dark:text-amber-400"></p><button id="theme-samples-close" class="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">✕ close</button></div>
+                            <div id="theme-samples-list" class="space-y-1.5"></div>
+                        </div>
                     </div>
                     <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
                         <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Emotions</p>
@@ -51,9 +68,24 @@
                     <div class="chart-wrap"><div class="chart-spinner" id="themes-trend-loading" aria-label="Loading chart"></div><canvas id="themes-trend-chart" height="320"></canvas></div>
                 </div>
                 <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Heatmap</p>
+                    <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Theme activity by month</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>A month × theme grid showing how often each theme appears per month. Darker = higher share.</span></button></div>
+                    <div id="theme-month-heatmap-wrap" class="overflow-x-auto"><div class="chart-spinner" id="themes-month-heatmap-loading" aria-label="Loading chart" style="min-height:80px"></div></div>
+                </div>
+                <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
                     <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Geography</p>
                     <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Top themes by county</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>The three most common themes per county, revealing regional theological emphases.</span></button></div>
                     <div class="chart-wrap"><div class="chart-spinner" id="themes-county-loading" aria-label="Loading chart"></div><canvas id="themes-county-chart" height="200"></canvas></div>
+                </div>
+                <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Length distribution</p>
+                    <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Homily length by theme</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>Word count distribution per theme. The bar spans P25–P75; the centre mark is the median. Longer bars = more variation in length.</span></button></div>
+                    <div class="chart-wrap"><div class="chart-spinner" id="themes-length-loading" aria-label="Loading chart"></div><canvas id="themes-length-chart" height="240"></canvas></div>
+                </div>
+                <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                    <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Co-occurrence</p>
+                    <div class="flex items-start justify-between gap-3 mb-4"><h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Themes × emotions heatmap</h3><button class="info-tooltip" type="button" data-tooltip><i data-lucide="info" class="w-3.5 h-3.5" aria-hidden="true"></i><span>How often each theological theme appears alongside each emotional tone. Darker cells = stronger co-occurrence.</span></button></div>
+                    <div id="theme-emotion-wrap" class="chart-wrap overflow-x-auto"><div class="chart-spinner" id="themes-heatmap-loading" aria-label="Loading chart"></div></div>
                 </div>
                 <div class="p-6 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
                     <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Temporal focus</p>
@@ -63,7 +95,7 @@
             </section>
             <section id="subscribe"><h2 class="font-inter-tight text-lg font-semibold text-gray-800 dark:text-gray-100 mb-6">Stay in the loop</h2><div class="p-6 rounded-2xl bg-amber-50/40 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80"><form><div class="flex flex-col gap-3 md:flex-row md:items-center md:gap-4"><input class="flex-1 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-600 border border-amber-200 dark:border-gray-700 rounded-lg px-3 py-2 focus:ring-0 focus:outline-hidden" type="email" name="email" placeholder="Enter your email..." autocomplete="off" /><button type="submit" class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500">Join newsletter</button></div></form></div></section>
         </main>
-        <footer class="space-y-8 text-center pb-16"><p class="text-sm text-gray-400 dark:text-gray-600">Sharing Homilies &copy; 2026. Built with care for the community.</p></footer>
+        <footer class="space-y-4 text-center pb-16 pt-6"><p class="text-sm text-gray-400 dark:text-gray-600">Sharing Homilies &copy; 2026. Built with care for the community.</p><nav class="flex flex-wrap justify-center gap-x-5 gap-y-1.5 mt-2"><a href="./index.html" class="text-xs text-gray-400 dark:text-gray-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors">Home</a><a href="./dive-deeper.html" class="text-xs text-gray-400 dark:text-gray-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors">Explore Stats</a><a href="./counties.html" class="text-xs text-gray-400 dark:text-gray-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors">By County</a><a href="./research.html" class="text-xs text-gray-400 dark:text-gray-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors">Research</a></nav></footer>
     </div></div></div></div></div>
 
     <script type="module" src="./js/main.js"></script>
@@ -74,6 +106,7 @@
         const apiBaseLocal = rawApiBase && !rawApiBase.includes('%VITE_') ? rawApiBase : 'http://localhost:5000';
         const refreshLucide = () => { if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons(); };
         refreshLucide();
+        const applyChartDarkDefaults = () => { const dark = document.documentElement.classList.contains('dark'); const tc = dark ? 'rgba(156,163,175,0.85)' : 'rgba(75,85,99,0.85)'; const gc = dark ? 'rgba(55,65,81,0.5)' : 'rgba(229,231,235,0.7)'; if (window.Chart) { Chart.defaults.color = tc; Chart.defaults.scale.grid.color = gc; } }; applyChartDarkDefaults(); new MutationObserver(applyChartDarkDefaults).observe(document.documentElement, { attributeFilter: ['class'] });
         const tidyLabel = (v) => { if (!v) return 'Unknown'; return String(v).replace(/_/g, ' ').replace(/\s+/g, ' ').trim().replace(/^./, c => c.toUpperCase()); };
         const setSpinnerVisible = (id, show) => { const el = document.getElementById(id); if (el) el.style.display = show ? 'flex' : 'none'; };
         const showChartError = (ids, msg) => { for (const id of ids) { const el = document.getElementById(id); if (!el) continue; el.style.display = 'none'; const w = el.closest('.chart-wrap'); if (!w) continue; const p = document.createElement('p'); p.className = 'text-xs text-gray-400 dark:text-gray-500 text-center py-6'; p.textContent = msg; w.appendChild(p); } };
@@ -101,7 +134,26 @@
                 topThemes.forEach((t, i) => { themeColorMap[t.theme] = PILL_PALETTE[i % PILL_PALETTE.length]; });
                 const topCtx = document.getElementById('themes-top-chart');
                 if (topCtx && topThemes.length) {
-                    new Chart(topCtx, { type: 'bar', data: { labels: topThemes.map(t => tidyLabel(t.theme)), datasets: [{ label: 'Count', data: topThemes.map(t => t.count), backgroundColor: 'rgba(180,120,30,0.55)', borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } } });
+                    const topChart = new Chart(topCtx, { type: 'bar', data: { labels: topThemes.map(t => tidyLabel(t.theme)), datasets: [{ label: 'Count', data: topThemes.map(t => t.count), backgroundColor: topThemes.map(() => 'rgba(180,120,30,0.55)'), hoverBackgroundColor: topThemes.map(() => 'rgba(180,120,30,0.8)'), borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } }, onClick: async (evt, elements) => {
+                        if (!elements.length) return;
+                        const idx = elements[0].index;
+                        const theme = topThemes[idx]?.theme;
+                        const count = topThemes[idx]?.count || 0;
+                        if (!theme) return;
+                        const samplesEl = document.getElementById('theme-samples');
+                        const labelEl = document.getElementById('theme-samples-label');
+                        const listEl = document.getElementById('theme-samples-list');
+                        samplesEl.classList.remove('hidden');
+                        labelEl.textContent = `${tidyLabel(theme)} — ${count} homilies`;
+                        listEl.innerHTML = '<p class="text-xs text-gray-400">Loading…</p>';
+                        try {
+                            const r = await fetch(`${apiBaseLocal}/web/homilies/search?theme=${encodeURIComponent(theme)}&limit=3`);
+                            const d = await r.json();
+                            const items = d.data || [];
+                            listEl.innerHTML = items.length ? items.map(h => `<a href="./homily.html?id=${h.id||h._id}" class="flex flex-col gap-0.5 p-2 rounded-lg bg-amber-50 dark:bg-gray-800 hover:bg-amber-100 dark:hover:bg-gray-700 transition-colors no-underline"><span class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">${h.church || 'Unknown church'}</span><span class="text-xs text-gray-400 dark:text-gray-500">${h.county ? tidyLabel(h.county) : ''} · ${h.date ? h.date.slice(0,10) : ''}</span></a>`).join('') : '<p class="text-xs text-gray-400">No sample homilies found.</p>';
+                        } catch { listEl.innerHTML = '<p class="text-xs text-gray-400">Could not load samples.</p>'; }
+                    } } } });
+                    document.getElementById('theme-samples-close')?.addEventListener('click', () => document.getElementById('theme-samples').classList.add('hidden'));
                 }
                 setSpinnerVisible('themes-top-loading', false);
 
@@ -124,6 +176,46 @@
                 }
                 setSpinnerVisible('themes-trend-loading', false);
 
+                // Month × theme heatmap
+                setSpinnerVisible('themes-month-heatmap-loading', false);
+                const hmWrap = document.getElementById('theme-month-heatmap-wrap');
+                if (hmWrap && trend.months?.length && (trend.themes || []).length) {
+                    const hmThemes = trend.themes.slice(0, 6);
+                    const hmMonths = trend.months;
+                    const hmRows = trend.data || [];
+                    const hmTable = document.createElement('table');
+                    hmTable.className = 'w-full text-xs border-collapse min-w-[320px]';
+                    const hmHead = hmTable.createTHead();
+                    const hmHr = hmHead.insertRow();
+                    const thCorner = document.createElement('th'); thCorner.className = 'pb-1 pr-2'; hmHr.appendChild(thCorner);
+                    hmMonths.forEach(m => { const th = document.createElement('th'); th.className = 'pb-1 px-0.5 text-center font-medium text-gray-400 dark:text-gray-500 whitespace-nowrap'; th.style.minWidth = '28px'; th.textContent = m.slice(2); hmHr.appendChild(th); });
+                    const hmBody = hmTable.createTBody();
+                    hmThemes.forEach((t, ti) => {
+                        const totals = hmMonths.map((_, mi) => hmThemes.reduce((s, th) => s + (hmRows[mi]?.counts?.[th] || 0), 0));
+                        const maxPct = Math.max(...hmMonths.map((_, mi) => { const tot = totals[mi]; return tot > 0 ? (hmRows[mi]?.counts?.[t] || 0) / tot : 0; }), 0.001);
+                        const row = hmBody.insertRow();
+                        const labelCell = row.insertCell(); labelCell.className = 'pr-2 py-0.5 text-right font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap'; labelCell.textContent = tidyLabel(t);
+                        const col = PILL_PALETTE[ti % PILL_PALETTE.length];
+                        hmMonths.forEach((_, mi) => {
+                            const tot = totals[mi];
+                            const pct = tot > 0 ? (hmRows[mi]?.counts?.[t] || 0) / tot : 0;
+                            const intensity = pct / maxPct;
+                            const cell = row.insertCell();
+                            cell.className = 'px-0.5 py-0.5 text-center rounded';
+                            cell.style.background = intensity > 0 ? `${col.bg}` : 'transparent';
+                            cell.style.opacity = intensity > 0 ? String(0.15 + intensity * 0.85) : '1';
+                            cell.title = `${tidyLabel(t)} · ${hmMonths[mi]}: ${Math.round(pct*100)}%`;
+                            const inner = document.createElement('div');
+                            inner.style.cssText = `width:24px;height:16px;border-radius:3px;margin:0 auto;background:${intensity>0?col.border:'transparent'}`;
+                            inner.style.opacity = String(intensity);
+                            cell.appendChild(inner);
+                        });
+                    });
+                    const spinner = document.getElementById('themes-month-heatmap-loading');
+                    if (spinner) spinner.remove();
+                    hmWrap.appendChild(hmTable);
+                }
+
                 const byCounty = (data.themes_by_county || []).slice(0, 20);
                 const countyCanvas = document.getElementById('themes-county-chart');
                 setSpinnerVisible('themes-county-loading', false);
@@ -145,6 +237,52 @@
                     }
                 }
 
+                const lengthByTheme = (data.word_count_by_theme || []).filter(t => t.p25 != null);
+                const lengthCtx = document.getElementById('themes-length-chart');
+                setSpinnerVisible('themes-length-loading', false);
+                if (lengthCtx && lengthByTheme.length) {
+                    new Chart(lengthCtx, { type: 'bar', data: { labels: lengthByTheme.map(t => tidyLabel(t.theme)), datasets: [
+                        { label: 'P25–P75 range', data: lengthByTheme.map(t => [t.p25, t.p75]), backgroundColor: 'rgba(180,120,30,0.35)', borderColor: 'rgba(180,120,30,0.7)', borderWidth: 1, borderRadius: 3 },
+                        { label: 'Median', data: lengthByTheme.map(t => [t.median - 8, t.median + 8]), backgroundColor: 'rgba(120,70,10,0.85)', borderWidth: 0, borderRadius: 2 },
+                    ] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { position: 'top', labels: { font: { size: 10 } } }, tooltip: { callbacks: { label: (ctx) => { const t = lengthByTheme[ctx.dataIndex]; return ctx.datasetIndex === 0 ? `P25: ${t.p25} · Median: ${t.median} · P75: ${t.p75} · Mean: ${t.mean}` : null; }, filter: (item) => item.datasetIndex === 0 } } }, scales: { x: { beginAtZero: false, title: { display: true, text: 'Word count' } }, y: { stacked: false } } } });
+                }
+
+                const matrix = data.theme_emotion_matrix || {};
+                const heatmapWrap = document.getElementById('theme-emotion-wrap');
+                setSpinnerVisible('themes-heatmap-loading', false);
+                if (heatmapWrap && matrix.themes?.length && matrix.emotions?.length) {
+                    heatmapWrap.style.minHeight = 'auto';
+                    const themes = matrix.themes;
+                    const emotions = matrix.emotions;
+                    const mdata = matrix.data || {};
+                    const maxVal = themes.reduce((mx, t) => emotions.reduce((mx2, e) => Math.max(mx2, mdata[t]?.[e] || 0), mx), 0) || 1;
+                    const table = document.createElement('table');
+                    table.className = 'w-full text-xs border-collapse';
+                    const thead = table.createTHead();
+                    const hr = thead.insertRow();
+                    hr.insertCell().innerHTML = '';
+                    emotions.forEach(e => { const th = document.createElement('th'); th.className = 'px-1 py-1 text-center font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap'; th.style.writingMode = 'vertical-rl'; th.style.transform = 'rotate(180deg)'; th.style.height = '70px'; th.textContent = tidyLabel(e); thead.rows[0].appendChild(th); });
+                    const tbody = table.createTBody();
+                    themes.forEach(t => {
+                        const row = tbody.insertRow();
+                        const labelCell = row.insertCell();
+                        labelCell.className = 'pr-2 py-1 text-left font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap';
+                        labelCell.textContent = tidyLabel(t);
+                        emotions.forEach(e => {
+                            const val = mdata[t]?.[e] || 0;
+                            const intensity = val / maxVal;
+                            const cell = row.insertCell();
+                            cell.className = 'text-center px-1 py-1 rounded';
+                            cell.title = `${tidyLabel(t)} + ${tidyLabel(e)}: ${val}`;
+                            cell.style.background = intensity > 0 ? `rgba(180,120,30,${0.08 + intensity * 0.72})` : 'transparent';
+                            cell.style.color = intensity > 0.55 ? '#fff' : '#4b3a1a';
+                            cell.style.fontSize = '10px';
+                            cell.textContent = val > 0 ? val : '';
+                        });
+                    });
+                    heatmapWrap.appendChild(table);
+                }
+
                 const temporal = (data.temporal_focus || []).slice(0, 6);
                 const tempCtx = document.getElementById('themes-temporal-chart');
                 if (tempCtx && temporal.length) {
@@ -152,12 +290,13 @@
                 }
                 setSpinnerVisible('themes-temporal-loading', false);
             } catch (err) {
-                ['themes-top-loading','themes-emotion-loading','themes-trend-loading','themes-county-loading','themes-temporal-loading'].forEach(id => setSpinnerVisible(id, false));
+                ['themes-top-loading','themes-emotion-loading','themes-trend-loading','themes-month-heatmap-loading','themes-length-loading','themes-county-loading','themes-heatmap-loading','themes-temporal-loading'].forEach(id => setSpinnerVisible(id, false));
                 showChartError(['themes-top-chart','themes-emotion-chart','themes-trend-chart','themes-county-chart','themes-temporal-chart'], statsErrorMsg(err));
             }
         };
 
         loadThemesStats();
+        fetch(`${apiBaseLocal}/web/homilies/stats/general`).then(r=>r.ok?r.json():null).then(d=>{if(d){const el=document.getElementById('coverage-meta');if(el)el.textContent=`${(d.total_homilies||0).toLocaleString()} homilies · ${(d.homilies_per_church||[]).length} churches · ${(d.homilies_per_county||[]).length} counties`;}}).catch(()=>{});
         document.querySelectorAll('[data-tooltip]').forEach((t) => { t.addEventListener('click', (e) => { e.stopPropagation(); const open = t.classList.contains('tooltip-open'); document.querySelectorAll('[data-tooltip]').forEach((el) => el.classList.remove('tooltip-open')); if (!open) t.classList.add('tooltip-open'); }); });
         document.addEventListener('click', () => { document.querySelectorAll('[data-tooltip]').forEach((el) => el.classList.remove('tooltip-open')); });
     </script>

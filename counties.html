@@ -189,6 +189,13 @@
                                 </div>
                         </div>
 
+                        <!-- County rankings -->
+                        <div id="county-rankings" class="hidden p-5 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                            <p class="text-xs uppercase tracking-[0.2em] text-amber-700/70 mb-2">Rankings</p>
+                            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">Counties by homilies</h3>
+                            <div id="county-rankings-list" class="space-y-1"></div>
+                        </div>
+
                         <!-- County panel -->
                         <div id="county-panel">
                             <p id="panel-placeholder" class="text-sm text-gray-400 dark:text-gray-600 text-center py-4">Select a county on the map to see its churches and recent homilies.</p>
@@ -209,8 +216,14 @@
 
                 </main>
 
-                        <footer class="space-y-8 text-center pb-16">
+                        <footer class="space-y-4 text-center pb-16 pt-6">
                             <p class="text-sm text-gray-400 dark:text-gray-600">Sharing Homilies &copy; 2026. Built with care for the community.</p>
+                            <nav class="flex flex-wrap justify-center gap-x-5 gap-y-1.5">
+                                <a href="./index.html" class="text-xs text-gray-400 dark:text-gray-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors">Home</a>
+                                <a href="./dive-deeper.html" class="text-xs text-gray-400 dark:text-gray-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors">Explore Stats</a>
+                                <a href="./counties.html" class="text-xs text-gray-400 dark:text-gray-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors">By County</a>
+                                <a href="./research.html" class="text-xs text-gray-400 dark:text-gray-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors">Research</a>
+                            </nav>
                         </footer>
                     </div>
                 </div>
@@ -973,12 +986,44 @@
                 countyData[slug] = { count };
             }
             applyColorMode('count');
+            renderCountyRankings();
             for (const [ieId, slug] of Object.entries(COUNTY_IDS)) {
                 const el = document.getElementById(ieId);
                 if (!el) continue;
                 el.dataset.county = slug;
                 el.dataset.count = countyData[slug]?.count || 0;
             }
+        }
+
+        function renderCountyRankings() {
+            const rankings = Object.entries(countyData)
+                .map(([slug, d]) => ({ slug, count: d.count || 0 }))
+                .filter(r => r.count > 0)
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 15);
+            if (!rankings.length) return;
+            const maxCount = rankings[0].count;
+            const container = document.getElementById('county-rankings');
+            const list = document.getElementById('county-rankings-list');
+            if (!container || !list) return;
+            list.innerHTML = '';
+            rankings.forEach((r, i) => {
+                const pct = Math.round((r.count / maxCount) * 100);
+                const label = r.slug.replace(/-/g, ' ').replace(/^./, c => c.toUpperCase());
+                const row = document.createElement('div');
+                row.className = 'county-rank-row flex items-center gap-2 py-1 cursor-pointer hover:opacity-80 transition-opacity';
+                row.dataset.slug = r.slug;
+                row.innerHTML = `<span class="text-xs text-gray-400 dark:text-gray-500 w-4 text-right shrink-0">${i+1}</span><span class="text-xs font-medium text-gray-700 dark:text-gray-300 w-20 shrink-0 truncate">${label}</span><div class="flex-1 h-2 rounded-full bg-amber-100 dark:bg-gray-700 overflow-hidden"><div class="h-full rounded-full bg-amber-600/70 dark:bg-amber-500/60 transition-all" style="width:${pct}%"></div></div><span class="text-xs text-gray-500 dark:text-gray-400 w-8 text-right shrink-0">${r.count}</span>`;
+                row.addEventListener('click', () => {
+                    const ieId = Object.keys(COUNTY_IDS).find(k => COUNTY_IDS[k] === r.slug);
+                    if (ieId) {
+                        const path = document.getElementById(ieId);
+                        if (path) path.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                    }
+                });
+                list.appendChild(row);
+            });
+            container.classList.remove('hidden');
         }
 
         async function loadCategoryStats() {
