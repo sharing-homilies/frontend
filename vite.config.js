@@ -20,6 +20,7 @@ export default defineConfig({
         statsScripture: resolve(__dirname, 'stats-scripture.html'),
         statsActions: resolve(__dirname, 'stats-actions.html'),
         statsEntities: resolve(__dirname, 'stats-entities.html'),
+        statsEmbeddings: resolve(__dirname, 'stats-embeddings.html'),
       },
     },
   },
