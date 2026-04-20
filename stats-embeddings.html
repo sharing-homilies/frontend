@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en" data-api-base="%VITE_API_BASE%">
+<head>
+    <meta charset="utf-8">
+    <title>Semantic & Occasion Analysis - Sharing Homilies</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="icon" href="./images/sharing-homilies.png">
+    <link href="/style.css" rel="stylesheet">
+    <style>
+        .interactive-btn { transition: transform 0.2s ease-out; }
+        .interactive-btn:hover { transform: scale(1.03); }
+        .interactive-btn:active { transform: scale(0.98); }
+        .profile-image { position: relative; border-radius: 50%; }
+        .profile-image::before { content: ''; position: absolute; top: -3px; left: -3px; width: calc(100% + 6px); height: calc(100% + 6px); border-radius: 50%; background: conic-gradient(from 0deg at 50% 50%, rgb(245 158 11) 0deg, rgb(245 158 11) 180deg, transparent 180deg, transparent 360deg); z-index: 1; pointer-events: none; clip-path: inset(0 0 50% 0); }
+        .info-tooltip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 9999px; border: none; background: rgba(255,245,225,0.95); color: rgba(120,70,10,1); cursor: pointer; box-shadow: 0 3px 8px rgba(120,70,10,0.12); }
+        .info-tooltip span { position: absolute; right: 0; top: 120%; min-width: 260px; max-width: 320px; padding: 0.6rem 0.8rem; border-radius: 12px; background: rgba(255,248,235,0.98); color: rgba(120,70,10,0.95); font-size: 12px; line-height: 1.5; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 30; box-shadow: 0 12px 24px rgba(120,70,10,0.18); border: 1px solid rgba(180,120,30,0.35); }
+        .info-tooltip.tooltip-open span { opacity: 1; transform: translateY(0); }
+        @media (hover: hover) { .info-tooltip:hover span { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 480px) { .info-tooltip span { right: auto; left: 50%; transform: translateX(-50%) translateY(-4px); min-width: 200px; max-width: calc(100vw - 2rem); } .info-tooltip.tooltip-open span, .info-tooltip:hover span { transform: translateX(-50%) translateY(0); } }
+        .chart-wrap { position: relative; min-height: 160px; }
+        .chart-spinner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255,252,244,0.6); border-radius: 12px; }
+        .chart-spinner::before { content: ''; width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(180,120,30,0.3); border-top-color: rgba(120,70,10,0.7); animation: spin 0.9s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .stat-card { background: rgba(255,252,244,0.7); border: 1px solid rgba(180,120,30,0.15); border-radius: 16px; padding: 1.25rem 1.5rem; }
+        .dark .stat-card { background: rgba(30,27,20,0.5); border-color: rgba(80,60,20,0.3); }
+        .sim-cell { display: inline-block; width: 100%; height: 100%; border-radius: 4px; }
+    </style>
+    <script>
+        if (localStorage.getItem('dark-mode') === 'false' || !('dark-mode' in localStorage)) { document.querySelector('html').classList.remove('dark'); } else { document.querySelector('html').classList.add('dark'); }
+    </script>
+</head>
+<body class="font-inter antialiased bg-amber-50 text-gray-800 dark:bg-gray-950 dark:text-gray-100 tracking-tight" style="background-image: radial-gradient(circle at 18% 20%, rgba(245,232,204,0.9), transparent 62%), radial-gradient(circle at 82% 14%, rgba(250,236,210,0.85), transparent 58%), radial-gradient(circle at 35% 78%, rgba(238,222,191,0.75), transparent 64%), radial-gradient(circle at 70% 70%, rgba(232,214,182,0.7), transparent 60%), linear-gradient(0deg, rgba(252,244,228,0.85), rgba(252,244,228,0.85)); background-size: 100% 100%;">
+<div class="overflow-hidden supports-[overflow:clip]:overflow-clip">
+<div class="max-w-[728px] mx-auto">
+<div class="w-full bg-white dark:bg-gray-900 border-x border-amber-100 dark:border-gray-800 box-content" style="background-image: radial-gradient(circle at 10% 12%, rgba(255,255,255,0.9), transparent 45%), radial-gradient(circle at 85% 18%, rgba(248,248,248,0.9), transparent 48%), radial-gradient(circle at 20% 80%, rgba(250,250,250,0.85), transparent 50%), radial-gradient(circle at 60% 35%, rgba(244,244,244,0.6), transparent 55%), radial-gradient(circle at 40% 60%, rgba(245,245,245,0.55), transparent 58%), linear-gradient(165deg, rgba(236,236,236,0.25), rgba(255,255,255,0) 40%), linear-gradient(6deg, rgba(232,232,232,0.22), rgba(255,255,255,0) 35%), linear-gradient(275deg, rgba(240,240,240,0.18), rgba(255,255,255,0) 45%); background-size: 100% 100%; background-blend-mode: multiply;">
+<div class="px-6 md:px-16">
+<div class="flex flex-col min-h-screen">
+
+<!-- Header -->
+<header class="text-center pt-8">
+    <div class="flex justify-end mb-2">
+        <div class="inline-flex items-center justify-center ml-auto">
+            <input type="checkbox" name="light-switch" id="light-switch" class="light-switch sr-only" />
+            <label class="relative cursor-pointer p-2" for="light-switch">
+                <svg class="dark:hidden" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path class="fill-gray-300" d="M7 0h2v2H7zM12.88 1.637l1.414 1.415-1.415 1.413-1.413-1.414zM14 7h2v2h-2zM12.95 14.433l-1.414-1.413 1.413-1.415 1.415 1.414zM7 14h2v2H7zM2.98 14.364l-1.413-1.415 1.414-1.414 1.414 1.415zM0 7h2v2H0zM3.05 1.706 4.463 3.12 3.05 4.535 1.636 3.12z"/><path class="fill-gray-400" d="M8 4C5.8 4 4 5.8 4 8s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4Z"/></svg>
+                <svg class="hidden dark:block" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path class="fill-gray-500" d="M6.2 1C3.2 1.8 1 4.6 1 7.9 1 11.8 4.2 15 8.1 15c3.3 0 6-2.2 6.9-5.2C9.7 11.2 4.8 6.3 6.2 1Z"/><path class="fill-gray-400" d="M12.5 5a.625.625 0 0 1-.625-.625 1.252 1.252 0 0 0-1.25-1.25.625.625 0 1 1 0-1.25 1.252 1.252 0 0 0 1.25-1.25.625.625 0 1 1 1.25 0c.001.69.56 1.249 1.25 1.25a.625.625 0 1 1 0 1.25c-.69.001-1.249.56-1.25 1.25A.625.625 0 0 1 12.5 5Z"/></svg>
+                <span class="sr-only">Switch to light / dark version</span>
+            </label>
+        </div>
+    </div>
+    <div class="mb-10">
+        <img class="inline-flex shadow-lg mb-5 profile-image" src="./images/sharing-homilies.png" width="120" height="120" alt="Sharing Homilies" />
+        <div class="mb-7">
+            <p class="text-xs uppercase tracking-[0.2em] text-amber-700/80 mb-2">Dive deeper</p>
+            <h1 class="font-inter-tight font-bold text-gray-800 dark:text-gray-100 text-3xl mb-3">Semantic &amp; Occasion Analysis</h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400">How homilies cluster in semantic space, how similar seasons are to each other, convergence across parishes, and the breakdown of special occasion Masses.</p>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-3">
+            <a class="btn-sm interactive-btn text-white dark:text-gray-800 bg-linear-to-r from-amber-700 to-amber-400 dark:from-amber-300 dark:to-amber-200 shadow-lg shadow-black/25 dark:shadow-black/40 relative before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-[45deg,transparent_25%,var(--color-white)_50%,transparent_75%,transparent_100%] before:opacity-20 before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:[transition:background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] hover:before:duration-1500" href="./dive-deeper.html">All stats</a>
+        </div>
+    </div>
+</header>
+
+<main class="grow py-14 space-y-14">
+
+    <!-- ── EMBEDDINGS SECTION ─────────────────────────────────── -->
+    <section class="space-y-8">
+        <div>
+            <h2 class="font-inter-tight font-bold text-xl text-gray-800 dark:text-gray-100 mb-1">Semantic structure</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Each homily is represented as a vector in 1,536-dimensional space using OpenAI embeddings. These charts reveal the semantic shape of the corpus.</p>
+        </div>
+
+        <!-- UMAP scatter -->
+        <div class="p-5 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+            <div class="flex items-center gap-2 mb-1">
+                <h3 class="font-semibold text-sm text-gray-700 dark:text-gray-200">Homily map — semantic space (UMAP)</h3>
+                <button class="info-tooltip ml-auto" onclick="this.classList.toggle('tooltip-open')" aria-label="About this chart">
+                    <svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor"><path d="M6 0a6 6 0 1 0 0 12A6 6 0 0 0 6 0zm.75 9h-1.5V5.25h1.5V9zm0-4.5h-1.5v-1.5h1.5v1.5z"/></svg>
+                    <span>Each dot is one homily projected from 1,536 dimensions to 2D using UMAP. Nearby dots are semantically similar. Colour = liturgical season. ~500 homilies sampled proportionally.</span>
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Colour by season — hover a dot to see the homily title and county</p>
+            <div class="chart-wrap" style="min-height:340px">
+                <div id="umap-loading" class="chart-spinner"></div>
+                <canvas id="umap-chart"></canvas>
+            </div>
+            <div id="umap-legend" class="flex flex-wrap gap-2 mt-3"></div>
+        </div>
+
+        <!-- Season similarity heatmap -->
+        <div class="p-5 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+            <div class="flex items-center gap-2 mb-1">
+                <h3 class="font-semibold text-sm text-gray-700 dark:text-gray-200">Season-to-season similarity</h3>
+                <button class="info-tooltip ml-auto" onclick="this.classList.toggle('tooltip-open')" aria-label="About this chart">
+                    <svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor"><path d="M6 0a6 6 0 1 0 0 12A6 6 0 0 0 6 0zm.75 9h-1.5V5.25h1.5V9zm0-4.5h-1.5v-1.5h1.5v1.5z"/></svg>
+                    <span>Cosine similarity between the average embedding of each liturgical season. 1.0 = identical; values closer to 0 indicate more distinct semantic content. Darker = more similar.</span>
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">How semantically close are homilies from different seasons?</p>
+            <div id="season-sim-loading" class="chart-spinner" style="position:relative;min-height:140px"></div>
+            <div id="season-sim-wrap" class="overflow-x-auto"></div>
+        </div>
+
+        <!-- Convergence over time -->
+        <div class="p-5 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+            <div class="flex items-center gap-2 mb-1">
+                <h3 class="font-semibold text-sm text-gray-700 dark:text-gray-200">Parish convergence over time</h3>
+                <button class="info-tooltip ml-auto" onclick="this.classList.toggle('tooltip-open')" aria-label="About this chart">
+                    <svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor"><path d="M6 0a6 6 0 1 0 0 12A6 6 0 0 0 6 0zm.75 9h-1.5V5.25h1.5V9zm0-4.5h-1.5v-1.5h1.5v1.5z"/></svg>
+                    <span>For each Sunday with 4+ homilies, this shows the mean pairwise cosine similarity between all parishes that preached that day. Higher = more parishes independently arrived at similar messages.</span>
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Do parishes converge on the same message each Sunday? (standard Masses only, min. 4 parishes)</p>
+            <div class="chart-wrap" style="min-height:220px">
+                <div id="convergence-loading" class="chart-spinner"></div>
+                <canvas id="convergence-chart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── OCCASIONS SECTION ──────────────────────────────────── -->
+    <section class="space-y-8">
+        <div>
+            <h2 class="font-inter-tight font-bold text-xl text-gray-800 dark:text-gray-100 mb-1">Occasion analysis</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Not every recorded Mass is a standard Sunday homily. Funerals, weddings, First Communions, and other special occasions have a distinct presence in the corpus — and their own rhetorical character.</p>
+        </div>
+
+        <!-- Occasion distribution -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="p-5 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+                <h3 class="font-semibold text-sm text-gray-700 dark:text-gray-200 mb-3">Mass type breakdown</h3>
+                <div class="chart-wrap" style="min-height:200px">
+                    <div id="occ-dist-loading" class="chart-spinner"></div>
+                    <canvas id="occ-dist-chart"></canvas>
+                </div>
+            </div>
+            <div id="occ-summary" class="p-5 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80 space-y-2">
+                <h3 class="font-semibold text-sm text-gray-700 dark:text-gray-200 mb-3">At a glance</h3>
+                <div id="occ-summary-loading" class="chart-spinner" style="position:relative;min-height:80px"></div>
+            </div>
+        </div>
+
+        <!-- Occasions by month -->
+        <div class="p-5 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+            <div class="flex items-center gap-2 mb-1">
+                <h3 class="font-semibold text-sm text-gray-700 dark:text-gray-200">Special occasions by month</h3>
+                <button class="info-tooltip ml-auto" onclick="this.classList.toggle('tooltip-open')" aria-label="About this chart">
+                    <svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor"><path d="M6 0a6 6 0 1 0 0 12A6 6 0 0 0 6 0zm.75 9h-1.5V5.25h1.5V9zm0-4.5h-1.5v-1.5h1.5v1.5z"/></svg>
+                    <span>Monthly count of non-standard Masses in the corpus. First Communion spikes in May, funerals are distributed year-round, and weddings peak in summer months.</span>
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Standard Masses excluded — shows only funerals, weddings, First Communions, etc.</p>
+            <div class="chart-wrap" style="min-height:200px">
+                <div id="occ-month-loading" class="chart-spinner"></div>
+                <canvas id="occ-month-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top counties -->
+        <div class="p-5 rounded-2xl bg-amber-50/60 dark:bg-gray-900/70 shadow-lg shadow-black/25 dark:shadow-black/40 ring-1 ring-amber-100/40 dark:ring-white/5 border-t border-l border-amber-300/50 dark:border-gray-700/80">
+            <h3 class="font-semibold text-sm text-gray-700 dark:text-gray-200 mb-3">Special occasion recordings by county</h3>
+            <div id="occ-county-loading" class="chart-spinner" style="position:relative;min-height:120px"></div>
+            <div id="occ-county-wrap" class="space-y-1.5"></div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-amber-100 dark:border-gray-800 py-8 mt-8">
+    <div class="flex flex-wrap justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+            <img src="./images/sharing-homilies.png" width="28" height="28" alt="Sharing Homilies" class="rounded-full opacity-80">
+            <span class="text-xs text-gray-400 dark:text-gray-500">Sharing Homilies</span>
+        </div>
+        <nav class="flex flex-wrap gap-4">
+            <a href="./index.html" class="text-xs text-gray-400 dark:text-gray-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors">Home</a>
+            <a href="./dive-deeper.html" class="text-xs text-gray-400 dark:text-gray-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors">Explore Stats</a>
+            <a href="./counties.html" class="text-xs text-gray-400 dark:text-gray-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors">Counties</a>
+        </nav>
+    </div>
+</footer>
+
+</div></div></div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="./js/theme-toggle.js"></script>
+<script>
+    const apiBaseLocal = (document.documentElement.dataset.apiBase || '').replace(/\/$/, '') || 'http://127.0.0.1:5000';
+
+    function setSpinnerVisible(id, visible) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = visible ? '' : 'none';
+    }
+
+    function tidyLabel(s) {
+        if (!s) return '';
+        return String(s).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    const SEASON_COLORS = {
+        'Advent': '#6366f1', 'Christmas': '#f59e0b', 'Lent': '#8b5cf6',
+        'Holy Week': '#ef4444', 'Easter': '#10b981', 'Ordinary Time': '#64748b', 'Unknown': '#9ca3af',
+    };
+    const OCCASION_COLORS = {
+        funeral: '#64748b', wedding: '#ec4899', first_communion: '#10b981',
+        confirmation: '#6366f1', anniversary: '#f59e0b', ordination: '#8b5cf6',
+    };
+
+    // Dark mode chart defaults
+    const applyChartDarkDefaults = () => {
+        const dark = document.documentElement.classList.contains('dark');
+        const tc = dark ? 'rgba(156,163,175,0.85)' : 'rgba(75,85,99,0.85)';
+        const gc = dark ? 'rgba(55,65,81,0.5)' : 'rgba(229,231,235,0.7)';
+        if (window.Chart) { Chart.defaults.color = tc; Chart.defaults.scale.grid.color = gc; }
+    };
+    applyChartDarkDefaults();
+    new MutationObserver(applyChartDarkDefaults).observe(document.documentElement, { attributeFilter: ['class'] });
+
+    // ── EMBEDDINGS ────────────────────────────────────────────
+    async function loadEmbeddingsStats() {
+        try {
+            const resp = await fetch(`${apiBaseLocal}/web/homilies/stats/embeddings`);
+            if (!resp.ok) { showEmbeddingsUnavailable(); return; }
+            const data = await resp.json();
+            if (data.error) { showEmbeddingsUnavailable(data.error); return; }
+            renderUmap(data.umap_scatter || []);
+            renderSeasonSim(data.season_similarity || {});
+            renderConvergence(data.convergence_by_sunday || []);
+        } catch (e) {
+            showEmbeddingsUnavailable();
+        }
+    }
+
+    function showEmbeddingsUnavailable(msg) {
+        const note = msg || 'Embedding analysis not yet computed. Run the batch pipeline first.';
+        ['umap-loading', 'season-sim-loading', 'convergence-loading'].forEach(id => setSpinnerVisible(id, false));
+        document.getElementById('umap-chart').closest('.chart-wrap').innerHTML =
+            `<p class="text-xs text-gray-400 dark:text-gray-500 italic p-4">${note}</p>`;
+    }
+
+    function renderUmap(points) {
+        setSpinnerVisible('umap-loading', false);
+        if (!points.length) return;
+
+        const byseason = {};
+        for (const p of points) {
+            if (!byseason[p.season]) byseason[p.season] = [];
+            byseason[p.season].push(p);
+        }
+
+        const datasets = Object.entries(byseason).map(([season, pts]) => ({
+            label: season,
+            data: pts.map(p => ({ x: p.x, y: p.y, _meta: p })),
+            backgroundColor: (SEASON_COLORS[season] || '#9ca3af') + 'bb',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+        }));
+
+        new Chart(document.getElementById('umap-chart'), {
+            type: 'scatter',
+            data: { datasets },
+            options: {
+                responsive: true,
+                animation: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const m = ctx.raw._meta;
+                                return [`${m.alt_title || 'Untitled'}`, `${tidyLabel(m.county)} · ${m.date}`, `${m.season}`];
+                            },
+                        },
+                    },
+                },
+                scales: {
+                    x: { display: false },
+                    y: { display: false },
+                },
+            },
+        });
+
+        // Legend
+        const legendEl = document.getElementById('umap-legend');
+        for (const [season, color] of Object.entries(SEASON_COLORS)) {
+            if (!byseason[season]) continue;
+            const span = document.createElement('span');
+            span.className = 'flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400';
+            span.innerHTML = `<span style="width:10px;height:10px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0"></span>${season}`;
+            legendEl.appendChild(span);
+        }
+    }
+
+    function renderSeasonSim(data) {
+        setSpinnerVisible('season-sim-loading', false);
+        const { seasons, matrix, colors } = data;
+        if (!seasons?.length) return;
+
+        const wrap = document.getElementById('season-sim-wrap');
+        const table = document.createElement('table');
+        table.className = 'w-full text-xs border-collapse';
+
+        // Header row
+        const thead = table.createTHead();
+        const hr = thead.insertRow();
+        hr.insertCell().className = 'p-1';
+        seasons.forEach((s, i) => {
+            const th = document.createElement('th');
+            th.className = 'p-1 text-center font-medium whitespace-nowrap';
+            th.style.writingMode = 'vertical-rl';
+            th.style.transform = 'rotate(180deg)';
+            th.style.height = '70px';
+            th.style.color = colors[i];
+            th.textContent = s;
+            hr.appendChild(th);
+        });
+
+        const tbody = table.createTBody();
+        seasons.forEach((rowSeason, ri) => {
+            const row = tbody.insertRow();
+            const labelCell = row.insertCell();
+            labelCell.className = 'pr-2 py-1 text-right font-medium whitespace-nowrap';
+            labelCell.style.color = colors[ri];
+            labelCell.textContent = rowSeason;
+            matrix[ri].forEach((val, ci) => {
+                const cell = row.insertCell();
+                cell.className = 'p-1 text-center text-xs rounded';
+                // Scale: similarity typically 0.7–1.0 for these
+                const norm = Math.max(0, (val - 0.6) / 0.4);
+                const col = colors[ri];
+                cell.style.background = ri === ci
+                    ? col + '55'
+                    : `rgba(180,120,30,${(norm * 0.6).toFixed(2)})`;
+                cell.style.color = norm > 0.6 ? '#fff' : '';
+                cell.title = `${rowSeason} × ${seasons[ci]}: ${val.toFixed(3)}`;
+                cell.textContent = val.toFixed(2);
+            });
+        });
+
+        wrap.appendChild(table);
+    }
+
+    function renderConvergence(points) {
+        setSpinnerVisible('convergence-loading', false);
+        if (!points.length) return;
+        const labels = points.map(p => p.date);
+        const vals = points.map(p => p.mean_similarity);
+        const bgColors = points.map(p => (SEASON_COLORS[p.season] || '#9ca3af') + '99');
+
+        new Chart(document.getElementById('convergence-chart'), {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Mean pairwise similarity',
+                    data: vals,
+                    backgroundColor: bgColors,
+                    borderWidth: 0,
+                    borderRadius: 2,
+                }],
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const p = points[ctx.dataIndex];
+                                return `${p.mean_similarity.toFixed(3)} — ${p.count} parishes · ${p.season}`;
+                            },
+                        },
+                    },
+                },
+                scales: {
+                    x: { display: false },
+                    y: {
+                        min: 0.5, max: 1.0,
+                        title: { display: true, text: 'Cosine similarity' },
+                        ticks: { callback: v => v.toFixed(2) },
+                    },
+                },
+            },
+        });
+    }
+
+    // ── OCCASIONS ─────────────────────────────────────────────
+    async function loadOccasionStats() {
+        try {
+            const resp = await fetch(`${apiBaseLocal}/web/homilies/stats/occasions`);
+            if (!resp.ok) return;
+            const data = await resp.json();
+            renderOccasionDist(data.distribution || []);
+            renderOccasionSummary(data);
+            renderOccasionByMonth(data.by_month || [], data.occasion_order || []);
+            renderOccasionByCounty(data.top_counties || [], data.occasion_order || []);
+        } catch (e) {
+            console.warn('Occasion stats failed:', e);
+        }
+    }
+
+    function renderOccasionDist(distribution) {
+        setSpinnerVisible('occ-dist-loading', false);
+        const nonStd = distribution.filter(d => d.occasion !== 'standard');
+        if (!nonStd.length) return;
+        new Chart(document.getElementById('occ-dist-chart'), {
+            type: 'doughnut',
+            data: {
+                labels: nonStd.map(d => tidyLabel(d.occasion)),
+                datasets: [{
+                    data: nonStd.map(d => d.count),
+                    backgroundColor: nonStd.map(d => OCCASION_COLORS[d.occasion] || '#9ca3af'),
+                    borderWidth: 2,
+                }],
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'right', labels: { font: { size: 10 }, padding: 10 } },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}` } },
+                },
+            },
+        });
+    }
+
+    function renderOccasionSummary(data) {
+        setSpinnerVisible('occ-summary-loading', false);
+        const dist = data.distribution || [];
+        const total = data.total || 0;
+        const standard = dist.find(d => d.occasion === 'standard');
+        const nonStdTotal = total - (standard?.count || 0);
+        const pct = total > 0 ? Math.round(nonStdTotal / total * 100) : 0;
+
+        const summaryEl = document.getElementById('occ-summary');
+        summaryEl.innerHTML = `
+            <h3 class="font-semibold text-sm text-gray-700 dark:text-gray-200 mb-3">At a glance</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4"><span class="text-2xl font-bold text-amber-700 dark:text-amber-400">${pct}%</span> of recordings are special occasion Masses</p>
+            <div class="space-y-2">
+                ${dist.filter(d => d.occasion !== 'standard').map(d => `
+                    <div class="flex items-center gap-2">
+                        <span style="width:8px;height:8px;border-radius:50%;background:${OCCASION_COLORS[d.occasion]||'#9ca3af'};flex-shrink:0;display:inline-block"></span>
+                        <span class="text-xs text-gray-600 dark:text-gray-400 flex-1">${tidyLabel(d.occasion)}</span>
+                        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">${d.count}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    function renderOccasionByMonth(byMonth, occasionOrder) {
+        setSpinnerVisible('occ-month-loading', false);
+        if (!byMonth.length) return;
+        const labels = byMonth.map(m => m.month);
+        const datasets = occasionOrder.map(occ => ({
+            label: tidyLabel(occ),
+            data: byMonth.map(m => m[occ] || 0),
+            backgroundColor: OCCASION_COLORS[occ] || '#9ca3af',
+            stack: 'stack',
+            borderWidth: 0,
+            borderRadius: 2,
+        })).filter(ds => ds.data.some(v => v > 0));
+
+        new Chart(document.getElementById('occ-month-chart'), {
+            type: 'bar',
+            data: { labels, datasets },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'top', labels: { font: { size: 10 } } } },
+                scales: {
+                    x: { stacked: true, ticks: { font: { size: 10 }, maxRotation: 45 } },
+                    y: { stacked: true, beginAtZero: true },
+                },
+            },
+        });
+    }
+
+    function renderOccasionByCounty(topCounties, occasionOrder) {
+        setSpinnerVisible('occ-county-loading', false);
+        if (!topCounties.length) return;
+        const wrap = document.getElementById('occ-county-wrap');
+        const maxTotal = topCounties[0]?.total || 1;
+
+        topCounties.forEach(c => {
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-2 py-1 border-b border-amber-100/50 dark:border-gray-700/40 last:border-0';
+            const barSegments = occasionOrder
+                .filter(o => c[o] > 0)
+                .map(o => `<div style="width:${Math.round(c[o]/maxTotal*100)}%;background:${OCCASION_COLORS[o]||'#9ca3af'};height:8px;min-width:3px" title="${tidyLabel(o)}: ${c[o]}"></div>`)
+                .join('');
+            row.innerHTML = `
+                <span class="text-xs font-medium text-gray-700 dark:text-gray-300 w-20 shrink-0 truncate">${tidyLabel(c.county)}</span>
+                <div class="flex-1 h-2 flex rounded-full overflow-hidden bg-amber-100 dark:bg-gray-700">${barSegments}</div>
+                <span class="text-xs text-gray-500 dark:text-gray-400 w-8 text-right shrink-0">${c.total}</span>
+            `;
+            wrap.appendChild(row);
+        });
+    }
+
+    // Boot
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    loadEmbeddingsStats();
+    loadOccasionStats();
+</script>
+</body>
+</html>
