@@ -203,7 +203,10 @@
                                                 <img id="homily-image" class="w-full h-full object-cover" src="./images/header-image-01.png" alt="Homily cover" />
                                             </div>
                                             <div class="flex-1 space-y-2">
-                                                <p id="homily-date" class="text-xs uppercase tracking-[0.22em] text-amber-700/70 dark:text-amber-200/70"></p>
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <p id="homily-date" class="text-xs uppercase tracking-[0.22em] text-amber-700/70 dark:text-amber-200/70"></p>
+                                                    <span id="homily-occasion-badge" class="hidden text-xs font-medium px-2.5 py-0.5 rounded-full border"></span>
+                                                </div>
                                                 <h2 id="homily-title" class="font-inter-tight text-2xl font-semibold text-gray-800 dark:text-gray-100">Loading homily…</h2>
                                                 <p id="homily-alt-title" class="text-base italic text-amber-700/80 dark:text-amber-300/80 hidden"></p>
                                                 <div class="flex flex-col gap-1 text-sm text-gray-600 dark:text-gray-400">
@@ -645,6 +648,22 @@
                             ${places ? `<div class="flex flex-wrap gap-1">${places}</div>` : ''}
                             ${evidence}
                         `;
+                    }
+
+                    const occasionBadge = document.getElementById('homily-occasion-badge');
+                    if (occasionBadge && data.occasion_type && data.occasion_type !== 'standard') {
+                        const OCCASION_COLORS = {
+                            funeral:         'bg-gray-100 text-gray-700 border-gray-300/60 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600/60',
+                            wedding:         'bg-pink-50 text-pink-700 border-pink-200/60 dark:bg-pink-900/30 dark:text-pink-300 dark:border-pink-700/60',
+                            first_communion: 'bg-sky-50 text-sky-700 border-sky-200/60 dark:bg-sky-900/30 dark:text-sky-300 dark:border-sky-700/60',
+                            confirmation:    'bg-violet-50 text-violet-700 border-violet-200/60 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-700/60',
+                            anniversary:     'bg-rose-50 text-rose-700 border-rose-200/60 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-700/60',
+                            ordination:      'bg-amber-50 text-amber-700 border-amber-200/60 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700/60',
+                        };
+                        const colors = OCCASION_COLORS[data.occasion_type] || 'bg-amber-50 text-amber-700 border-amber-200/60';
+                        occasionBadge.className = `text-xs font-medium px-2.5 py-0.5 rounded-full border ${colors}`;
+                        occasionBadge.textContent = formatPill(data.occasion_type);
+                        occasionBadge.classList.remove('hidden');
                     }
 
                     const imageEl = document.getElementById('homily-image');
